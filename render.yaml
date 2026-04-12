@@ -19,8 +19,8 @@ services:
         sync: false              # à compléter avec l'URL Render après 1er déploiement
       - key: APP_LOCALE
         value: fr
-      - key: APP_KEY
-        generateValue: true      # Render génère un secret au 1er déploiement
+      # APP_KEY non définie : l'entrypoint génère une clé base64 valide au 1er boot.
+      # (Render `generateValue` produit un hex brut incompatible avec AES-256-CBC.)
       - key: LOG_CHANNEL
         value: stderr
       - key: SESSION_DRIVER
