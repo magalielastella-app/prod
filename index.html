@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RestoManager — Gestion de restaurant</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="logo">R</span>
+      <div>
+        <h1>RestoManager</h1>
+        <p class="tagline">Inventaire · Planning · Hygiène</p>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-view="dashboard">Tableau de bord</button>
+      <button class="nav-btn" data-view="inventory">Inventaire</button>
+      <button class="nav-btn" data-view="planning">Planning</button>
+      <button class="nav-btn" data-view="hygiene">Hygiène</button>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view active">
+      <h2>Tableau de bord</h2>
+      <div class="cards">
+        <div class="card stat">
+          <span class="stat-label">Produits en stock</span>
+          <span class="stat-value" id="stat-products">0</span>
+        </div>
+        <div class="card stat warn">
+          <span class="stat-label">Alertes stock bas</span>
+          <span class="stat-value" id="stat-lowstock">0</span>
+        </div>
+        <div class="card stat danger">
+          <span class="stat-label">Produits périmés / à venir</span>
+          <span class="stat-value" id="stat-expiring">0</span>
+        </div>
+        <div class="card stat">
+          <span class="stat-label">Employés actifs</span>
+          <span class="stat-value" id="stat-employees">0</span>
+        </div>
+        <div class="card stat">
+          <span class="stat-label">Heures planifiées (semaine)</span>
+          <span class="stat-value" id="stat-hours">0</span>
+        </div>
+        <div class="card stat">
+          <span class="stat-label">Contrôles hygiène du jour</span>
+          <span class="stat-value" id="stat-hygiene">0</span>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Alertes récentes</h3>
+          <ul id="alerts-list" class="alerts"></ul>
+        </div>
+        <div class="card">
+          <h3>Prochaines tâches d'hygiène</h3>
+          <ul id="next-hygiene" class="alerts"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Inventory -->
+    <section id="view-inventory" class="view">
+      <div class="view-header">
+        <h2>Inventaire</h2>
+        <div class="view-actions">
+          <input type="search" id="inv-search" placeholder="Rechercher un produit..." />
+          <select id="inv-filter-category">
+            <option value="">Toutes catégories</option>
+          </select>
+          <button class="btn primary" id="btn-add-product">+ Nouveau produit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <table class="data-table" id="inventory-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Catégorie</th>
+              <th>Quantité</th>
+              <th>Seuil mini</th>
+              <th>Péremption</th>
+              <th>Prix unitaire</th>
+              <th>Fournisseur</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Planning -->
+    <section id="view-planning" class="view">
+      <div class="view-header">
+        <h2>Planning hebdomadaire</h2>
+        <div class="view-actions">
+          <button class="btn ghost" id="btn-prev-week">← Semaine précédente</button>
+          <span id="week-label" class="week-label"></span>
+          <button class="btn ghost" id="btn-next-week">Semaine suivante →</button>
+          <button class="btn primary" id="btn-add-employee">+ Employé</button>
+          <button class="btn primary" id="btn-add-shift">+ Créneau</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Équipe</h3>
+        <div id="employees-list" class="chips"></div>
+      </div>
+
+      <div class="card">
+        <h3>Planning</h3>
+        <div class="planning-grid-wrapper">
+          <table class="planning-grid">
+            <thead>
+              <tr id="planning-header"></tr>
+            </thead>
+            <tbody id="planning-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hygiene -->
+    <section id="view-hygiene" class="view">
+      <div class="view-header">
+        <h2>Module Hygiène (HACCP)</h2>
+        <div class="view-actions">
+          <input type="date" id="hygiene-date" />
+          <button class="btn primary" id="btn-add-temp">+ Relevé température</button>
+          <button class="btn primary" id="btn-add-cleaning">+ Tâche nettoyage</button>
+          <button class="btn primary" id="btn-add-delivery">+ Réception marchandise</button>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Relevés de température</h3>
+          <table class="data-table">
+            <thead>
+              <tr><th>Zone</th><th>Température (°C)</th><th>Heure</th><th>Conforme</th><th>Agent</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="temps-body"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Plan de nettoyage</h3>
+          <table class="data-table">
+            <thead>
+              <tr><th>Zone / Équipement</th><th>Fréquence</th><th>Dernier nettoyage</th><th>Agent</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="cleaning-body"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Réception marchandises</h3>
+          <table class="data-table">
+            <thead>
+              <tr><th>Fournisseur</th><th>Produit</th><th>Quantité</th><th>Temp. livraison</th><th>DLC</th><th>Conforme</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="delivery-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button class="modal-close" id="modal-close">×</button>
+      </div>
+      <form id="modal-form" class="modal-body"></form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/planning.js"></script>
+  <script src="js/hygiene.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
