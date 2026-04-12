@@ -1,0 +1,59 @@
+# Blueprint Render pour Smash You Manager
+# Créez un nouveau Blueprint sur https://dashboard.render.com
+# et pointez-le sur ce repo ; Render provisionne automatiquement
+# le service web Docker + la base PostgreSQL.
+services:
+  - type: web
+    name: smashyou
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: APP_NAME
+        value: "Smash You"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        sync: false              # à compléter avec l'URL Render après 1er déploiement
+      - key: APP_LOCALE
+        value: fr
+      - key: APP_KEY
+        generateValue: true      # Render génère un secret au 1er déploiement
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: smashyou-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: smashyou-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: smashyou-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: smashyou-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: smashyou-db
+          property: password
+
+databases:
+  - name: smashyou-db
+    plan: free
+    databaseName: smashyou
+    user: smashyou
+    region: frankfurt
+    postgresMajorVersion: "16"
