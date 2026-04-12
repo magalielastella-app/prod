@@ -17,27 +17,31 @@ if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
     chown www-data:www-data "$DB_PATH"
 fi
 
-# Clé d'app : génère si manquante (ok en dev/démo, pour la prod la définir via secret)
-if [ -z "${APP_KEY:-}" ]; then
-    echo "APP_KEY manquante — génération à la volée (pensez à la définir en secret en production)."
+# APP_KEY : génère si manquante (ok en démo ; définissez un secret en prod)
+if [ -z "${APP_KEY:-}" ] && [ ! -f .env ]; then
+    echo "APP_KEY manquante — génération à la volée."
+    cp .env.example .env 2>/dev/null || touch .env
     php artisan key:generate --force
 fi
 
-# Optimisations Laravel (cache routes/config/views)
+# Optimisations Laravel
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
 
-# Migrations automatiques au démarrage
-php artisan migrate --force --graceful || true
-
-# Lien symbolique vers le stockage public (pour les documents uploadés)
+# Lien symbolique vers le stockage public (pour documents uploadés)
 php artisan storage:link || true
 
-# Seed uniquement au premier démarrage (base vide)
-if php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | grep -q '^0$'; then
-    echo "Base vide détectée — exécution du seeder..."
-    php artisan db:seed --force || true
+# Migrations automatiques au démarrage
+php artisan migrate --force --graceful
+
+# Seed uniquement au premier démarrage — sentinel fichier dans storage
+SENTINEL=/var/www/html/storage/app/.seeded
+if [ ! -f "$SENTINEL" ]; then
+    echo "Premier démarrage — exécution du seeder..."
+    if php artisan db:seed --force; then
+        touch "$SENTINEL"
+    fi
 fi
 
 exec "$@"
