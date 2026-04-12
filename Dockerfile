@@ -2,16 +2,17 @@
 # Build monolithique : installe PHP + Node, crée vendor/, construit Vite,
 # puis supprime les dev-deps pour garder l'image fine.
 
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # ---------- Dépendances système + extensions PHP ----------
 RUN apt-get update && apt-get install -y --no-install-recommends \
       git curl ca-certificates unzip gnupg \
       libicu-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
-      libpq-dev libonig-dev libsqlite3-dev sqlite3 \
+      libpq-dev libonig-dev libsqlite3-dev libxml2-dev sqlite3 \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install -j"$(nproc)" \
-        pdo_sqlite pdo_pgsql pdo_mysql zip intl gd bcmath opcache \
+        pdo_sqlite pdo_pgsql pdo_mysql \
+        zip intl gd bcmath opcache mbstring exif pcntl \
  && a2enmod rewrite headers \
  && rm -rf /var/lib/apt/lists/*
 
