@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -13,6 +14,11 @@ class Product extends Model
         'name', 'category', 'quantity', 'unit',
         'min_threshold', 'expiration', 'price', 'supplier',
     ];
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 
     protected $casts = [
         'quantity' => 'decimal:2',

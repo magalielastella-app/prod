@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    /* Fond général beige crème Smash You */
+    body {
+        background-color: theme('colors.brand.cream');
+        color: theme('colors.brand.dark');
+    }
+    .dark body {
+        background-color: #1C1512;
+        color: theme('colors.brand.cream');
+    }
+}

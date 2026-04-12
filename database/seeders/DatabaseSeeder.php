@@ -2,9 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Models\CashSheet;
 use App\Models\CleaningTask;
+use App\Models\CompanyInfo;
 use App\Models\Employee;
 use App\Models\Product;
+use App\Models\PurchaseInvoice;
+use App\Models\StockMovement;
+use App\Models\Supplier;
 use App\Models\TemperatureLog;
 use App\Models\User;
 use Carbon\Carbon;
@@ -15,33 +20,88 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Utilisateur démo : demo@resto.fr / password
+        // Utilisateur démo : demo@smashyou.fr / password
         User::firstOrCreate(
-            ['email' => 'demo@resto.fr'],
-            ['name' => 'Démo Restaurateur', 'password' => Hash::make('password')]
+            ['email' => 'demo@smashyou.fr'],
+            ['name' => 'Équipe Smash You', 'password' => Hash::make('password')]
         );
+
+        // Société
+        CompanyInfo::firstOrCreate([], [
+            'name' => 'Smash You',
+            'legal_form' => 'SAS',
+            'siret' => '912 345 678 00015',
+            'vat_number' => 'FR12 912345678',
+            'rcs' => 'Paris B 912 345 678',
+            'ape_code' => '5610A',
+            'capital' => 10000,
+            'address' => '12 rue des Gourmets',
+            'postal_code' => '75011',
+            'city' => 'Paris',
+            'phone' => '01 23 45 67 89',
+            'email' => 'contact@smashyou.fr',
+            'website' => 'https://smashyou.fr',
+            'manager_name' => 'Léo Martin',
+            'opening_hours' => 'Lun-Sam 12h-14h30 & 19h-22h30',
+        ]);
 
         $today = Carbon::today();
         $in = fn (int $n) => (clone $today)->addDays($n)->toDateString();
 
         // Produits
-        foreach ([
-            ['name' => 'Tomates cerises', 'category' => 'Légumes', 'quantity' => 8, 'unit' => 'kg', 'min_threshold' => 5, 'expiration' => $in(4), 'price' => 3.50, 'supplier' => 'Rungis Primeurs'],
-            ['name' => 'Filet de bœuf', 'category' => 'Viandes', 'quantity' => 2, 'unit' => 'kg', 'min_threshold' => 3, 'expiration' => $in(2), 'price' => 42.00, 'supplier' => 'Boucherie Martin'],
-            ['name' => 'Saumon frais', 'category' => 'Poissons', 'quantity' => 4, 'unit' => 'kg', 'min_threshold' => 2, 'expiration' => $in(1), 'price' => 28.00, 'supplier' => 'Océan Primeur'],
-            ['name' => 'Beurre doux', 'category' => 'Produits laitiers', 'quantity' => 12, 'unit' => 'kg', 'min_threshold' => 4, 'expiration' => $in(20), 'price' => 8.50, 'supplier' => 'Laiterie Normande'],
-            ['name' => 'Farine T55', 'category' => 'Épicerie', 'quantity' => 25, 'unit' => 'kg', 'min_threshold' => 10, 'expiration' => $in(120), 'price' => 1.20, 'supplier' => 'Moulin Dupont'],
-            ['name' => 'Vin rouge maison', 'category' => 'Boissons', 'quantity' => 18, 'unit' => 'btl', 'min_threshold' => 12, 'price' => 14.00, 'supplier' => 'Domaine Leclerc'],
-        ] as $data) {
-            Product::firstOrCreate(['name' => $data['name']], $data);
+        $products = [
+            ['name' => 'Pain à burger brioché', 'category' => 'Épicerie', 'quantity' => 80, 'unit' => 'pcs', 'min_threshold' => 40, 'expiration' => $in(4), 'price' => 0.35, 'supplier' => 'Boulangerie Nord'],
+            ['name' => 'Steak haché 150g', 'category' => 'Viandes', 'quantity' => 60, 'unit' => 'pcs', 'min_threshold' => 40, 'expiration' => $in(2), 'price' => 1.80, 'supplier' => 'Boucherie Martin'],
+            ['name' => 'Cheddar tranches', 'category' => 'Produits laitiers', 'quantity' => 5, 'unit' => 'kg', 'min_threshold' => 3, 'expiration' => $in(20), 'price' => 12.00, 'supplier' => 'Laiterie Normande'],
+            ['name' => 'Pommes de terre (frites)', 'category' => 'Légumes', 'quantity' => 25, 'unit' => 'kg', 'min_threshold' => 15, 'expiration' => $in(10), 'price' => 1.50, 'supplier' => 'Rungis Primeurs'],
+            ['name' => 'Tomates', 'category' => 'Légumes', 'quantity' => 4, 'unit' => 'kg', 'min_threshold' => 5, 'expiration' => $in(4), 'price' => 2.80, 'supplier' => 'Rungis Primeurs'],
+            ['name' => 'Sauce burger maison', 'category' => 'Épicerie', 'quantity' => 12, 'unit' => 'L', 'min_threshold' => 6, 'price' => 5.20, 'supplier' => 'Épicerie du Chef'],
+            ['name' => 'Coca-Cola 33cl', 'category' => 'Boissons', 'quantity' => 48, 'unit' => 'btl', 'min_threshold' => 24, 'price' => 1.00, 'supplier' => 'Distri-Boissons'],
+            ['name' => 'Bacon fumé', 'category' => 'Viandes', 'quantity' => 2, 'unit' => 'kg', 'min_threshold' => 3, 'expiration' => $in(6), 'price' => 18.00, 'supplier' => 'Boucherie Martin'],
+        ];
+        foreach ($products as $p) {
+            Product::firstOrCreate(['name' => $p['name']], $p);
+        }
+
+        // Fournisseurs
+        $suppliers = [
+            ['name' => 'Boucherie Martin', 'contact' => 'M. Martin', 'email' => 'contact@boucherie-martin.fr', 'phone' => '01 44 55 66 77', 'order_day' => 'Lundi, Jeudi'],
+            ['name' => 'Rungis Primeurs', 'contact' => 'Sylvie', 'email' => 'commandes@rungis-primeurs.fr', 'phone' => '01 77 88 99 00', 'order_day' => 'Mardi, Vendredi'],
+            ['name' => 'Laiterie Normande', 'email' => 'contact@laiterie-normande.fr', 'order_day' => 'Mercredi'],
+            ['name' => 'Boulangerie Nord', 'email' => 'pains@boulangerie-nord.fr', 'order_day' => 'Tous les jours'],
+            ['name' => 'Distri-Boissons', 'email' => 'ventes@distri-boissons.fr', 'order_day' => 'Mardi'],
+            ['name' => 'Épicerie du Chef', 'order_day' => 'Vendredi'],
+        ];
+        foreach ($suppliers as $s) {
+            Supplier::firstOrCreate(['name' => $s['name']], $s);
+        }
+
+        // Cadenciers (quelques lignes par fournisseur)
+        $boucherie = Supplier::where('name', 'Boucherie Martin')->first();
+        $steak = Product::where('name', 'Steak haché 150g')->first();
+        $bacon = Product::where('name', 'Bacon fumé')->first();
+        if ($boucherie && $boucherie->cadencier()->count() === 0) {
+            $boucherie->cadencier()->createMany([
+                ['product_id' => $steak->id, 'name' => 'Steak haché 150g - boîte x20', 'reference' => 'STK-150', 'unit' => 'pcs', 'pack_size' => 20, 'price' => 1.80, 'usual_quantity' => 100],
+                ['product_id' => $bacon->id, 'name' => 'Bacon fumé tranché', 'reference' => 'BCN-01', 'unit' => 'kg', 'price' => 18.00, 'usual_quantity' => 5],
+            ]);
+        }
+        $rungis = Supplier::where('name', 'Rungis Primeurs')->first();
+        $patate = Product::where('name', 'Pommes de terre (frites)')->first();
+        $tomato = Product::where('name', 'Tomates')->first();
+        if ($rungis && $rungis->cadencier()->count() === 0) {
+            $rungis->cadencier()->createMany([
+                ['product_id' => $patate->id, 'name' => 'PDT frite Agria', 'reference' => 'PDT-FR', 'unit' => 'kg', 'pack_size' => 25, 'price' => 1.40, 'usual_quantity' => 50],
+                ['product_id' => $tomato->id, 'name' => 'Tomates rondes cat.1', 'unit' => 'kg', 'pack_size' => 5, 'price' => 2.50, 'usual_quantity' => 10],
+            ]);
         }
 
         // Équipe
         foreach ([
-            ['name' => 'Julie Durand', 'role' => 'Chef de cuisine', 'email' => 'julie@resto.fr'],
-            ['name' => 'Marc Bernard', 'role' => 'Second', 'email' => 'marc@resto.fr'],
-            ['name' => 'Sophie Leroy', 'role' => 'Serveuse', 'email' => 'sophie@resto.fr'],
-            ['name' => 'Ahmed Khalil', 'role' => 'Plongeur', 'email' => 'ahmed@resto.fr'],
+            ['name' => 'Julie Durand', 'role' => 'Chef de cuisine', 'email' => 'julie@smashyou.fr'],
+            ['name' => 'Marc Bernard', 'role' => 'Grillardin', 'email' => 'marc@smashyou.fr'],
+            ['name' => 'Sophie Leroy', 'role' => 'Serveuse', 'email' => 'sophie@smashyou.fr'],
+            ['name' => 'Ahmed Khalil', 'role' => 'Plongeur', 'email' => 'ahmed@smashyou.fr'],
         ] as $data) {
             Employee::firstOrCreate(['email' => $data['email']], $data);
         }
@@ -49,6 +109,7 @@ class DatabaseSeeder extends Seeder
         // Tâches de nettoyage
         foreach ([
             ['zone' => 'Plan de travail cuisine', 'frequency' => 'Quotidien', 'last_done' => $in(-1), 'agent' => 'Marc Bernard'],
+            ['zone' => 'Plaque / Grill', 'frequency' => 'Quotidien', 'last_done' => $in(-1), 'agent' => 'Marc Bernard'],
             ['zone' => 'Hotte aspirante', 'frequency' => 'Hebdomadaire', 'last_done' => $in(-10), 'agent' => 'Ahmed Khalil'],
             ['zone' => 'Chambre froide', 'frequency' => 'Hebdomadaire', 'last_done' => $in(-5), 'agent' => 'Julie Durand'],
             ['zone' => 'Sols salle', 'frequency' => 'Quotidien', 'last_done' => null, 'agent' => 'Ahmed Khalil'],
@@ -71,6 +132,22 @@ class DatabaseSeeder extends Seeder
                     'compliant' => TemperatureLog::isCompliant($data['zone'], $data['temp']),
                 ])
             );
+        }
+
+        // Feuilles de caisse : 5 derniers jours ouvrés
+        for ($i = 0; $i <= 6; $i++) {
+            $d = (clone $today)->subDays($i)->toDateString();
+            $ca = rand(1200, 2400);
+            CashSheet::firstOrCreate(['date' => $d], [
+                'date' => $d,
+                'ca' => $ca,
+                'ca_plateforme' => round($ca * 0.20, 2),
+                'cb' => round($ca * 0.40, 2),
+                'cb_sans_contact' => round($ca * 0.15, 2),
+                'espece' => round($ca * 0.10, 2),
+                'ticket_restaurant' => round($ca * 0.05, 2),
+                'borne' => round($ca * 0.10, 2),
+            ]);
         }
     }
 }

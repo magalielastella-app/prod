@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\StockMovement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -32,6 +33,8 @@ class ProductController extends Controller
             'products' => $query->orderBy('name')->get(),
             'categories' => self::CATEGORIES,
             'filters' => $request->only(['search', 'category']),
+            'recentMovements' => StockMovement::with('product')
+                ->orderByDesc('created_at')->take(20)->get(),
         ]);
     }
 
