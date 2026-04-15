@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Support\ReviewTemplates\AdminAssistantTemplate;
 use App\Support\ReviewTemplates\AssistantTemplate;
 
 /**
@@ -22,6 +23,7 @@ class ReviewTemplate
     {
         return match ($key) {
             AssistantTemplate::KEY => AssistantTemplate::definition(),
+            AdminAssistantTemplate::KEY => AdminAssistantTemplate::definition(),
             default => AssistantTemplate::definition(),
         };
     }
@@ -32,8 +34,8 @@ class ReviewTemplate
     public static function keyForPosition(?string $position): string
     {
         return match ($position) {
-            Positions::DENTAL_ASSISTANT,
-            Positions::ADMIN_ASSISTANT => AssistantTemplate::KEY,
+            Positions::DENTAL_ASSISTANT => AssistantTemplate::KEY,
+            Positions::ADMIN_ASSISTANT => AdminAssistantTemplate::KEY,
             default => self::DEFAULT,
         };
     }

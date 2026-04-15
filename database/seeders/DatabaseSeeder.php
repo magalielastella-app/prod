@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\AnnualReview;
 use App\Models\User;
 use App\Support\Positions;
+use App\Support\ReviewTemplate;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -84,6 +85,7 @@ class DatabaseSeeder extends Seeder
                     'manager_id' => $employee->manager_id,
                     'scheduled_for' => Carbon::now()->addDays(14)->toDateString(),
                     'status' => AnnualReview::STATUS_SCHEDULED,
+                    'template_key' => ReviewTemplate::keyForPosition($employee->position),
                 ]
             );
         }
