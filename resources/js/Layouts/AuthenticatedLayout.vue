@@ -5,6 +5,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import FlashToast from '@/Components/FlashToast.vue';
+import BrandLogo from '@/Components/BrandLogo.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
@@ -14,21 +15,21 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
 
 <template>
     <div>
-        <div class="min-h-screen bg-brand-cream dark:bg-[#1C1512]">
+        <div class="min-h-screen">
             <!-- Barre de navigation -->
-            <nav class="border-b border-brand-tan/50 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <nav class="sticky top-0 z-20 border-b border-brand-beige/70 bg-white/80 backdrop-blur-md shadow-sm dark:border-gray-700 dark:bg-gray-800/80">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')" class="flex items-center gap-3">
-                                    <span class="grid h-10 w-10 place-items-center rounded-full bg-brand-primary text-lg font-black text-brand-cream shadow">
-                                        CD
-                                    </span>
+                                <Link :href="route('dashboard')"
+                                    class="flex items-center gap-3 transition hover:opacity-90"
+                                    aria-label="Cabinet Dentaire de l'Obiou — Tableau de bord">
+                                    <BrandLogo variant="mark" size="sm" />
                                     <span class="hidden sm:block">
-                                        <span class="block text-base font-bold tracking-wide text-brand-primary dark:text-brand-cream">Cabinet Dentaire</span>
-                                        <span class="block text-[11px] uppercase tracking-wider text-brand-tan">Entretiens annuels</span>
+                                        <span class="block text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-brand-cream">Cabinet Dentaire</span>
+                                        <span class="block text-[10px] uppercase tracking-[0.2em] text-brand-primary">de l'Obiou</span>
                                     </span>
                                 </Link>
                             </div>
@@ -95,8 +96,8 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
                 </div>
             </nav>
 
-            <header v-if="$slots.header" class="border-b border-brand-tan/30 bg-white/80 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800">
-                <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+            <header v-if="$slots.header" class="border-b border-brand-beige/50 bg-white/70 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800/70">
+                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
             </header>
