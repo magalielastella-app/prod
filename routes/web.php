@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnualReviewController;
 use App\Http\Controllers\CashSheetController;
 use App\Http\Controllers\CleaningTaskController;
 use App\Http\Controllers\CompanyInfoController;
@@ -74,6 +75,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/caisse', [CashSheetController::class, 'store'])->name('cash.store');
     Route::put('/caisse/{cashSheet}', [CashSheetController::class, 'update'])->name('cash.update');
     Route::delete('/caisse/{cashSheet}', [CashSheetController::class, 'destroy'])->name('cash.destroy');
+
+    // ---------- Entretiens annuels ----------
+    Route::get('/entretiens', [AnnualReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/entretiens', [AnnualReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/entretiens/{review}', [AnnualReviewController::class, 'show'])->name('reviews.show');
+    Route::put('/entretiens/{review}/salarie', [AnnualReviewController::class, 'employeeUpdate'])->name('reviews.employee.update');
+    Route::put('/entretiens/{review}/manager', [AnnualReviewController::class, 'managerUpdate'])->name('reviews.manager.update');
+    Route::post('/entretiens/{review}/signer', [AnnualReviewController::class, 'sign'])->name('reviews.sign');
+    Route::delete('/entretiens/{review}', [AnnualReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // ---------- Outils (société + documents) ----------
     Route::get('/outils', [DocumentController::class, 'index'])->name('tools.index');

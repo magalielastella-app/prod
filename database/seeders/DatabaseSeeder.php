@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnnualReview;
 use App\Models\CashSheet;
 use App\Models\CleaningTask;
 use App\Models\CompanyInfo;
@@ -20,11 +21,63 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Utilisateur démo : demo@smashyou.fr / password
-        User::firstOrCreate(
+        // Utilisateur démo : demo@smashyou.fr / password (admin / manager)
+        $demo = User::firstOrCreate(
             ['email' => 'demo@smashyou.fr'],
-            ['name' => 'Équipe Smash You', 'password' => Hash::make('password')]
+            [
+                'name' => 'Équipe Smash You',
+                'password' => Hash::make('password'),
+                'role' => User::ROLE_ADMIN,
+                'position' => 'Gérant',
+                'department' => 'Direction',
+            ]
         );
+
+        // Manager de démonstration : manager@smashyou.fr / password
+        $manager = User::firstOrCreate(
+            ['email' => 'manager@smashyou.fr'],
+            [
+                'name' => 'Léo Martin',
+                'password' => Hash::make('password'),
+                'role' => User::ROLE_MANAGER,
+                'position' => 'Responsable de salle',
+                'department' => 'Exploitation',
+            ]
+        );
+
+        // Salariés de démonstration : julie@ / marc@ / sophie@ (password)
+        $employeesSeed = [
+            ['email' => 'julie@smashyou.fr', 'name' => 'Julie Durand', 'position' => 'Chef de cuisine', 'department' => 'Cuisine'],
+            ['email' => 'marc@smashyou.fr', 'name' => 'Marc Bernard', 'position' => 'Grillardin', 'department' => 'Cuisine'],
+            ['email' => 'sophie@smashyou.fr', 'name' => 'Sophie Leroy', 'position' => 'Serveuse', 'department' => 'Salle'],
+        ];
+        $reviewEmployees = [];
+        foreach ($employeesSeed as $e) {
+            $reviewEmployees[] = User::firstOrCreate(
+                ['email' => $e['email']],
+                [
+                    'name' => $e['name'],
+                    'password' => Hash::make('password'),
+                    'role' => User::ROLE_EMPLOYEE,
+                    'position' => $e['position'],
+                    'department' => $e['department'],
+                    'manager_id' => $manager->id,
+                    'hired_on' => Carbon::now()->subYears(2)->toDateString(),
+                ]
+            );
+        }
+
+        // Un entretien planifié par salarié pour l'année en cours
+        foreach ($reviewEmployees as $emp) {
+            AnnualReview::firstOrCreate(
+                ['employee_id' => $emp->id, 'year' => (int) Carbon::now()->year],
+                [
+                    'manager_id' => $manager->id,
+                    'scheduled_for' => Carbon::now()->addDays(14)->toDateString(),
+                    'status' => AnnualReview::STATUS_SCHEDULED,
+                ]
+            );
+        }
 
         // Société
         CompanyInfo::firstOrCreate([], [

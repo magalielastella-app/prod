@@ -40,6 +40,7 @@ const page = usePage();
                                 <NavLink :href="route('planning.index')" :active="route().current('planning.*') || route().current('employees.*') || route().current('shifts.*')">Planning</NavLink>
                                 <NavLink :href="route('hygiene.index')" :active="route().current('hygiene.*') || route().current('temperatures.*') || route().current('cleaning-tasks.*') || route().current('deliveries.*')">Hygiène</NavLink>
                                 <NavLink :href="route('cash.index')" :active="route().current('cash.*')">Caisse</NavLink>
+                                <NavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</NavLink>
                                 <NavLink :href="route('tools.index')" :active="route().current('tools.*') || route().current('documents.*') || route().current('company.*')">Outils</NavLink>
                             </div>
                         </div>
@@ -87,6 +88,7 @@ const page = usePage();
                         <ResponsiveNavLink :href="route('planning.index')" :active="route().current('planning.*')">Planning</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('hygiene.index')" :active="route().current('hygiene.*')">Hygiène</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('cash.index')" :active="route().current('cash.*')">Caisse</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('tools.index')" :active="route().current('tools.*')">Outils</ResponsiveNavLink>
                     </div>
                     <div class="border-t border-brand-tan/50 pb-1 pt-4 dark:border-gray-600">
