@@ -198,6 +198,33 @@ class AnnualReviewController extends Controller
         ]);
     }
 
+    /**
+     * Téléchargement direct en PDF via dompdf — le PDF est généré
+     * côté serveur, sans passer par la boîte d'impression du navigateur.
+     */
+    public function downloadPdf(AnnualReview $review)
+    {
+        Gate::authorize('view', $review);
+
+        $review->load([
+            'employee:id,name,email,position,department,hired_on',
+            'manager:id,name,email',
+        ]);
+
+        $filename = sprintf(
+            '%d_%s_Entretien.pdf',
+            $review->year,
+            \Illuminate\Support\Str::upper(\Illuminate\Support\Str::slug($review->employee->name, '_'))
+        );
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reviews.pdf', [
+            'review' => $review,
+            'template' => $review->template(),
+        ])->setPaper('a4')->setOption('defaultFont', 'DejaVu Sans');
+
+        return $pdf->download($filename);
+    }
+
     /** Le salarié enregistre / envoie sa partie. */
     public function employeeUpdate(Request $request, AnnualReview $review): RedirectResponse
     {

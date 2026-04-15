@@ -193,7 +193,7 @@ const destroy = (id) => {
                                 <td class="px-4 py-3 text-right space-x-2">
                                     <Link :href="route('reviews.show', r.id)"
                                         class="text-brand-primary hover:underline">Ouvrir</Link>
-                                    <a :href="route('reviews.print', r.id)" target="_blank" rel="noopener"
+                                    <a :href="route('reviews.pdf', r.id)"
                                         class="text-brand-primary hover:underline">PDF</a>
                                     <button v-if="isManager && !r.signed"
                                         class="text-red-600 hover:underline" @click="destroy(r.id)">

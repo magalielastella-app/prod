@@ -155,13 +155,17 @@ const inputCls = 'block w-full rounded border-gray-300 text-sm shadow-sm focus:b
                     </h2>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a :href="route('reviews.print', review.id)" target="_blank" rel="noopener"
+                    <a :href="route('reviews.pdf', review.id)"
                         class="inline-flex items-center gap-1.5 rounded-lg border border-brand-primary/40 bg-white px-3 py-1.5 text-xs font-semibold text-brand-primary shadow-sm transition hover:bg-brand-tertiary">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Télécharger PDF
+                    </a>
+                    <a :href="route('reviews.print', review.id)" target="_blank" rel="noopener"
+                        class="text-xs text-gray-500 hover:text-brand-primary hover:underline">
+                        Aperçu HTML
                     </a>
                     <StatusBadge :label="review.status_label" :cls="statusColor(review.status)" />
                 </div>

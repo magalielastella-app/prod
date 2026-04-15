@@ -26,9 +26,13 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Cache composer/npm : on installe d'abord avec les lock files seuls
+# Cache composer/npm : on installe d'abord avec les lock files seuls.
+# Fallback composer update si composer.lock est en retard par rapport à
+# composer.json (pratique quand on ajoute un package sans pouvoir regénérer
+# le lock localement).
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction \
+ || composer update --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
