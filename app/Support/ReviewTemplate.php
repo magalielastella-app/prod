@@ -4,13 +4,13 @@ namespace App\Support;
 
 use App\Support\ReviewTemplates\AdminAssistantTemplate;
 use App\Support\ReviewTemplates\AssistantTemplate;
+use App\Support\ReviewTemplates\DirectriceTemplate;
 
 /**
  * Registre des trames d'entretien annuel.
  *
- * Les autres profils (dentiste, directrice d'exploitation) utilisent
- * pour l'instant la trame « assistant » par défaut jusqu'à ce qu'une
- * trame dédiée soit fournie.
+ * Le poste « Dentiste » utilise pour l'instant la trame « assistant »
+ * par défaut jusqu'à ce qu'une trame dédiée soit fournie.
  */
 class ReviewTemplate
 {
@@ -24,6 +24,7 @@ class ReviewTemplate
         return match ($key) {
             AssistantTemplate::KEY => AssistantTemplate::definition(),
             AdminAssistantTemplate::KEY => AdminAssistantTemplate::definition(),
+            DirectriceTemplate::KEY => DirectriceTemplate::definition(),
             default => AssistantTemplate::definition(),
         };
     }
@@ -36,6 +37,7 @@ class ReviewTemplate
         return match ($position) {
             Positions::DENTAL_ASSISTANT => AssistantTemplate::KEY,
             Positions::ADMIN_ASSISTANT => AdminAssistantTemplate::KEY,
+            Positions::OPERATIONS_DIRECTOR => DirectriceTemplate::KEY,
             default => self::DEFAULT,
         };
     }
