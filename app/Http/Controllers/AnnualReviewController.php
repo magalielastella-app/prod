@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AnnualReview;
 use App\Models\User;
+use App\Support\ReviewTemplate;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ use Inertia\Response;
 
 class AnnualReviewController extends Controller
 {
-    /** List reviews the current user can see. */
+    /** Liste des entretiens que l'utilisateur peut voir. */
     public function index(Request $request): Response
     {
         $user = $request->user();
@@ -23,9 +24,8 @@ class AnnualReviewController extends Controller
             ->orderBy('scheduled_for');
 
         if ($user->isAdmin()) {
-            // All reviews
+            // tout
         } elseif ($user->isManager()) {
-            // Reviews the manager owns OR their own review
             $query->where(function ($q) use ($user) {
                 $q->where('manager_id', $user->id)
                   ->orWhere('employee_id', $user->id);
@@ -54,7 +54,6 @@ class AnnualReviewController extends Controller
             'is_mine' => $r->employee_id === $user->id,
         ]);
 
-        // For managers: list of employees to propose a new review for
         $employees = [];
         if ($user->isManager()) {
             $employees = User::query()
@@ -74,7 +73,7 @@ class AnnualReviewController extends Controller
         ]);
     }
 
-    /** Manager schedules a new review for an employee. */
+    /** Le manager planifie un nouvel entretien. */
     public function store(Request $request): RedirectResponse
     {
         Gate::authorize('create', AnnualReview::class);
@@ -87,7 +86,6 @@ class AnnualReviewController extends Controller
 
         $employee = User::findOrFail($data['employee_id']);
 
-        // Safety: non-admin managers can only plan a review for their own subordinates
         if (! $request->user()->isAdmin()
             && $employee->manager_id !== $request->user()->id) {
             abort(403, "Vous n'êtes pas le manager de ce salarié.");
@@ -99,6 +97,7 @@ class AnnualReviewController extends Controller
             'year' => $data['year'],
             'scheduled_for' => $data['scheduled_for'] ?? null,
             'status' => AnnualReview::STATUS_SCHEDULED,
+            'template_key' => ReviewTemplate::keyForPosition($employee->position),
         ]);
 
         return redirect()->route('reviews.index')->with('success', 'Entretien planifié');
@@ -115,31 +114,43 @@ class AnnualReviewController extends Controller
 
         return Inertia::render('Reviews/Show', [
             'review' => $this->serialize($review),
+            'template' => $review->template(),
         ]);
     }
 
-    /** Employee saves their self-assessment (draft or submit). */
+    /** Le salarié enregistre / envoie sa partie. */
     public function employeeUpdate(Request $request, AnnualReview $review): RedirectResponse
     {
         Gate::authorize('employeeEdit', $review);
 
         $data = $request->validate([
-            'self_achievements' => ['nullable', 'string'],
-            'self_difficulties' => ['nullable', 'string'],
-            'self_skills_developed' => ['nullable', 'string'],
-            'self_motivation' => ['nullable', 'string'],
-            'previous_objectives' => ['nullable', 'array'],
-            'previous_objectives.*.title' => ['nullable', 'string', 'max:255'],
-            'previous_objectives.*.result' => ['nullable', 'string'],
-            'previous_objectives.*.achievement' => ['nullable', 'string', 'max:50'],
-            'employee_comments' => ['nullable', 'string'],
+            'header' => ['nullable', 'array'],
+            'answers' => ['nullable', 'array'],
             'submit' => ['nullable', 'boolean'],
         ]);
 
-        $submit = (bool) ($data['submit'] ?? false);
-        unset($data['submit']);
+        $template = $review->template();
 
-        $review->fill($data);
+        // Filtre les clés header autorisées pour l'employé
+        $employeeHeaderKeys = collect($template['header'] ?? [])
+            ->where('owner', 'employee')
+            ->pluck('key')
+            ->all();
+
+        $existingHeader = $review->header ?? [];
+        foreach (($data['header'] ?? []) as $k => $v) {
+            if (in_array($k, $employeeHeaderKeys, true)) {
+                $existingHeader[$k] = $v;
+            }
+        }
+        $review->header = $existingHeader;
+
+        // Les réponses salarié sont stockées telles quelles (filtrage par confiance :
+        // le formulaire n'expose que les champs owner=employee, et la vue manager
+        // n'affichera que les clés attendues de toute façon)
+        $review->employee_answers = $data['answers'] ?? [];
+
+        $submit = (bool) ($data['submit'] ?? false);
         if ($submit) {
             $review->status = AnnualReview::STATUS_READY_FOR_MANAGER;
         } elseif ($review->status === AnnualReview::STATUS_SCHEDULED) {
@@ -152,29 +163,35 @@ class AnnualReviewController extends Controller
             : 'Brouillon enregistré');
     }
 
-    /** Manager saves their assessment (draft or finalize). */
+    /** Le manager enregistre / finalise sa partie. */
     public function managerUpdate(Request $request, AnnualReview $review): RedirectResponse
     {
         Gate::authorize('managerEdit', $review);
 
         $data = $request->validate([
-            'new_objectives' => ['nullable', 'array'],
-            'new_objectives.*.title' => ['nullable', 'string', 'max:255'],
-            'new_objectives.*.description' => ['nullable', 'string'],
-            'new_objectives.*.deadline' => ['nullable', 'string', 'max:50'],
-            'training_needs' => ['nullable', 'string'],
-            'career_development' => ['nullable', 'string'],
-            'manager_appreciation' => ['nullable', 'string'],
-            'manager_areas_for_improvement' => ['nullable', 'string'],
-            'overall_rating' => ['nullable', 'integer', 'between:1,5'],
-            'manager_comments' => ['nullable', 'string'],
+            'header' => ['nullable', 'array'],
+            'answers' => ['nullable', 'array'],
             'finalize' => ['nullable', 'boolean'],
         ]);
 
-        $finalize = (bool) ($data['finalize'] ?? false);
-        unset($data['finalize']);
+        $template = $review->template();
 
-        $review->fill($data);
+        $managerHeaderKeys = collect($template['header'] ?? [])
+            ->where('owner', 'manager')
+            ->pluck('key')
+            ->all();
+
+        $existingHeader = $review->header ?? [];
+        foreach (($data['header'] ?? []) as $k => $v) {
+            if (in_array($k, $managerHeaderKeys, true)) {
+                $existingHeader[$k] = $v;
+            }
+        }
+        $review->header = $existingHeader;
+
+        $review->manager_answers = $data['answers'] ?? [];
+
+        $finalize = (bool) ($data['finalize'] ?? false);
         if ($finalize) {
             $review->status = AnnualReview::STATUS_COMPLETED;
         } elseif ($review->status === AnnualReview::STATUS_READY_FOR_MANAGER) {
@@ -187,7 +204,6 @@ class AnnualReviewController extends Controller
             : 'Brouillon manager enregistré');
     }
 
-    /** Employee or manager signs the review. */
     public function sign(Request $request, AnnualReview $review): RedirectResponse
     {
         Gate::authorize('view', $review);
@@ -235,19 +251,10 @@ class AnnualReviewController extends Controller
             'scheduled_for' => optional($review->scheduled_for)->toDateString(),
             'status' => $review->status,
             'status_label' => $review->statusLabel(),
-            'self_achievements' => $review->self_achievements,
-            'self_difficulties' => $review->self_difficulties,
-            'self_skills_developed' => $review->self_skills_developed,
-            'self_motivation' => $review->self_motivation,
-            'previous_objectives' => $review->previous_objectives ?? [],
-            'new_objectives' => $review->new_objectives ?? [],
-            'training_needs' => $review->training_needs,
-            'career_development' => $review->career_development,
-            'manager_appreciation' => $review->manager_appreciation,
-            'manager_areas_for_improvement' => $review->manager_areas_for_improvement,
-            'overall_rating' => $review->overall_rating,
-            'employee_comments' => $review->employee_comments,
-            'manager_comments' => $review->manager_comments,
+            'template_key' => $review->template_key,
+            'header' => $review->header ?? (object) [],
+            'employee_answers' => $review->employee_answers ?? (object) [],
+            'manager_answers' => $review->manager_answers ?? (object) [],
             'employee_signed_at' => optional($review->employee_signed_at)->toIso8601String(),
             'manager_signed_at' => optional($review->manager_signed_at)->toIso8601String(),
             'employee' => $review->employee ? [

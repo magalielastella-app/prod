@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ReviewTemplate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -29,19 +30,10 @@ class AnnualReview extends Model
         'year',
         'scheduled_for',
         'status',
-        'self_achievements',
-        'self_difficulties',
-        'self_skills_developed',
-        'self_motivation',
-        'previous_objectives',
-        'new_objectives',
-        'training_needs',
-        'career_development',
-        'manager_appreciation',
-        'manager_areas_for_improvement',
-        'overall_rating',
-        'employee_comments',
-        'manager_comments',
+        'template_key',
+        'header',
+        'employee_answers',
+        'manager_answers',
         'employee_signed_at',
         'manager_signed_at',
     ];
@@ -50,11 +42,11 @@ class AnnualReview extends Model
     {
         return [
             'scheduled_for' => 'date',
-            'previous_objectives' => 'array',
-            'new_objectives' => 'array',
+            'header' => 'array',
+            'employee_answers' => 'array',
+            'manager_answers' => 'array',
             'employee_signed_at' => 'datetime',
             'manager_signed_at' => 'datetime',
-            'overall_rating' => 'integer',
             'year' => 'integer',
         ];
     }
@@ -94,5 +86,10 @@ class AnnualReview extends Model
             self::STATUS_MANAGER_DRAFT,
             self::STATUS_COMPLETED,
         ], true);
+    }
+
+    public function template(): array
+    {
+        return ReviewTemplate::get($this->template_key ?? ReviewTemplate::DEFAULT);
     }
 }
