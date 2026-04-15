@@ -2,76 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CleaningTask;
-use App\Models\Delivery;
-use App\Models\Employee;
-use App\Models\Product;
-use App\Models\Shift;
-use App\Models\TemperatureLog;
+use App\Models\AnnualReview;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
-        $today = Carbon::today();
-        $weekStart = Carbon::now()->startOfWeek();
-        $weekEnd = Carbon::now()->endOfWeek();
+        $user = $request->user();
+        $currentYear = (int) Carbon::now()->year;
 
-        $products = Product::all();
-        $lowStock = $products->filter(fn ($p) => in_array($p->status['label'], ['Stock bas', 'Rupture']));
-        $expiring = $products->filter(fn ($p) =>
-            $p->expiration && $p->expiration->diffInDays($today, false) >= -3
-        );
-
-        $shifts = Shift::whereBetween('date', [$weekStart, $weekEnd])->get();
-        $weeklyHours = round($shifts->sum(fn ($s) => $s->hours), 1);
-
-        $nonCompliantTemps = TemperatureLog::whereDate('date', $today)
-            ->where('compliant', false)->get();
-
-        $overdueTasks = CleaningTask::all()
-            ->filter(fn ($t) => $t->status['cls'] !== 'ok')
-            ->take(10)
-            ->values();
-
-        $alerts = [];
-        foreach ($lowStock as $p) {
-            $alerts[] = [
-                'label' => "Stock bas : {$p->name} ({$p->quantity} {$p->unit})",
-                'type' => 'warn',
-            ];
+        $baseQuery = AnnualReview::query();
+        if ($user->isAdmin()) {
+            // all
+        } elseif ($user->isManager()) {
+            $baseQuery->where(function ($q) use ($user) {
+                $q->where('manager_id', $user->id)
+                  ->orWhere('employee_id', $user->id);
+            });
+        } else {
+            $baseQuery->where('employee_id', $user->id);
         }
-        foreach ($expiring as $p) {
-            $days = $today->diffInDays($p->expiration, false);
-            $alerts[] = [
-                'label' => $days < 0
-                    ? "Périmé : {$p->name} (" . $p->expiration->format('d/m/Y') . ')'
-                    : "Péremption dans {$days}j : {$p->name}",
-                'type' => $days < 0 ? 'danger' : 'warn',
-            ];
-        }
-        foreach ($nonCompliantTemps as $t) {
-            $alerts[] = [
-                'label' => "Température non conforme : {$t->zone} ({$t->temp}°C)",
-                'type' => 'danger',
-            ];
-        }
+
+        $scoped = (clone $baseQuery);
+        $stats = [
+            'total' => (clone $scoped)->where('year', $currentYear)->count(),
+            'to_prepare' => (clone $scoped)->whereIn('status', [
+                AnnualReview::STATUS_SCHEDULED,
+                AnnualReview::STATUS_EMPLOYEE_DRAFT,
+            ])->count(),
+            'to_review' => (clone $scoped)->whereIn('status', [
+                AnnualReview::STATUS_READY_FOR_MANAGER,
+                AnnualReview::STATUS_MANAGER_DRAFT,
+            ])->count(),
+            'to_sign' => (clone $scoped)->where('status', AnnualReview::STATUS_COMPLETED)->count(),
+            'signed' => (clone $scoped)->where('status', AnnualReview::STATUS_SIGNED)
+                ->where('year', $currentYear)->count(),
+            'team' => $user->isAdmin()
+                ? User::count()
+                : ($user->isManager() ? User::where('manager_id', $user->id)->count() : null),
+        ];
+
+        $upcoming = (clone $baseQuery)
+            ->with(['employee:id,name,position', 'manager:id,name'])
+            ->whereIn('status', [
+                AnnualReview::STATUS_SCHEDULED,
+                AnnualReview::STATUS_EMPLOYEE_DRAFT,
+                AnnualReview::STATUS_READY_FOR_MANAGER,
+                AnnualReview::STATUS_MANAGER_DRAFT,
+                AnnualReview::STATUS_COMPLETED,
+            ])
+            ->orderByRaw('scheduled_for IS NULL')
+            ->orderBy('scheduled_for')
+            ->limit(8)
+            ->get()
+            ->map(fn (AnnualReview $r) => [
+                'id' => $r->id,
+                'year' => $r->year,
+                'status' => $r->status,
+                'status_label' => $r->statusLabel(),
+                'scheduled_for' => optional($r->scheduled_for)->toDateString(),
+                'employee' => $r->employee ? [
+                    'id' => $r->employee->id,
+                    'name' => $r->employee->name,
+                    'position' => $r->employee->position,
+                ] : null,
+                'manager' => $r->manager?->only(['id', 'name']),
+            ]);
 
         return Inertia::render('Dashboard', [
-            'stats' => [
-                'products' => $products->count(),
-                'lowStock' => $lowStock->count(),
-                'expiring' => $expiring->count(),
-                'employees' => Employee::count(),
-                'weeklyHours' => $weeklyHours,
-                'hygieneChecks' => TemperatureLog::whereDate('date', $today)->count()
-                    + Delivery::whereDate('date', $today)->count(),
-            ],
-            'alerts' => array_slice($alerts, 0, 10),
-            'pendingTasks' => $overdueTasks,
+            'stats' => $stats,
+            'upcoming' => $upcoming,
+            'currentYear' => $currentYear,
         ]);
     }
 }

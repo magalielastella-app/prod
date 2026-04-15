@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
@@ -9,6 +9,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
 const page = usePage();
+const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
 </script>
 
 <template>
@@ -19,15 +20,15 @@ const page = usePage();
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
                         <div class="flex">
-                            <!-- Logo Smash You -->
+                            <!-- Logo -->
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('dashboard')" class="flex items-center gap-3">
                                     <span class="grid h-10 w-10 place-items-center rounded-full bg-brand-primary text-lg font-black text-brand-cream shadow">
-                                        SY
+                                        CD
                                     </span>
                                     <span class="hidden sm:block">
-                                        <span class="block text-base font-bold tracking-wide text-brand-primary dark:text-brand-cream">Smash You</span>
-                                        <span class="block text-[11px] uppercase tracking-wider text-brand-tan">Management</span>
+                                        <span class="block text-base font-bold tracking-wide text-brand-primary dark:text-brand-cream">Cabinet Dentaire</span>
+                                        <span class="block text-[11px] uppercase tracking-wider text-brand-tan">Entretiens annuels</span>
                                     </span>
                                 </Link>
                             </div>
@@ -35,13 +36,8 @@ const page = usePage();
                             <!-- Liens navigation -->
                             <div class="hidden space-x-5 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</NavLink>
-                                <NavLink :href="route('products.index')" :active="route().current('products.*') || route().current('stock.*')">Inventaire</NavLink>
-                                <NavLink :href="route('suppliers.index')" :active="route().current('suppliers.*') || route().current('cadencier.*') || route().current('invoices.*')">Achat</NavLink>
-                                <NavLink :href="route('planning.index')" :active="route().current('planning.*') || route().current('employees.*') || route().current('shifts.*')">Planning</NavLink>
-                                <NavLink :href="route('hygiene.index')" :active="route().current('hygiene.*') || route().current('temperatures.*') || route().current('cleaning-tasks.*') || route().current('deliveries.*')">Hygiène</NavLink>
-                                <NavLink :href="route('cash.index')" :active="route().current('cash.*')">Caisse</NavLink>
                                 <NavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</NavLink>
-                                <NavLink :href="route('tools.index')" :active="route().current('tools.*') || route().current('documents.*') || route().current('company.*')">Outils</NavLink>
+                                <NavLink v-if="isAdmin" :href="route('team.index')" :active="route().current('team.*')">Équipe</NavLink>
                             </div>
                         </div>
 
@@ -83,13 +79,8 @@ const page = usePage();
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')">Inventaire</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('suppliers.index')" :active="route().current('suppliers.*') || route().current('invoices.*')">Achat</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('planning.index')" :active="route().current('planning.*')">Planning</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('hygiene.index')" :active="route().current('hygiene.*')">Hygiène</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('cash.index')" :active="route().current('cash.*')">Caisse</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('tools.index')" :active="route().current('tools.*')">Outils</ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="isAdmin" :href="route('team.index')" :active="route().current('team.*')">Équipe</ResponsiveNavLink>
                     </div>
                     <div class="border-t border-brand-tan/50 pb-1 pt-4 dark:border-gray-600">
                         <div class="px-4">

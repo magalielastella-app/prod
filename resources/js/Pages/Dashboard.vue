@@ -1,13 +1,25 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 defineProps({
     stats: { type: Object, required: true },
-    alerts: { type: Array, default: () => [] },
-    pendingTasks: { type: Array, default: () => [] },
+    upcoming: { type: Array, default: () => [] },
+    currentYear: { type: Number, required: true },
 });
+
+const page = usePage();
+const userName = computed(() => page.props.auth.user?.name || '');
+
+const statusColor = (status) => {
+    if (status === 'signed') return 'ok';
+    if (status === 'completed') return 'info';
+    if (status === 'ready_for_manager') return 'warn';
+    if (status === 'scheduled') return 'info';
+    return 'warn';
+};
 </script>
 
 <template>
@@ -16,7 +28,7 @@ defineProps({
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                Tableau de bord
+                Bonjour {{ userName }} — entretiens {{ currentYear }}
             </h2>
         </template>
 
@@ -25,68 +37,59 @@ defineProps({
                 <!-- Statistiques -->
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                     <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                        <div class="text-xs font-medium uppercase text-gray-500">Produits</div>
-                        <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.products }}</div>
+                        <div class="text-xs font-medium uppercase text-gray-500">Entretiens {{ currentYear }}</div>
+                        <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.total }}</div>
                     </div>
                     <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                        <div class="text-xs font-medium uppercase text-gray-500">Stock bas</div>
-                        <div class="mt-1 text-2xl font-bold text-amber-600">{{ stats.lowStock }}</div>
+                        <div class="text-xs font-medium uppercase text-gray-500">À préparer</div>
+                        <div class="mt-1 text-2xl font-bold text-amber-600">{{ stats.to_prepare }}</div>
                     </div>
                     <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                        <div class="text-xs font-medium uppercase text-gray-500">Périmés / à venir</div>
-                        <div class="mt-1 text-2xl font-bold text-red-600">{{ stats.expiring }}</div>
+                        <div class="text-xs font-medium uppercase text-gray-500">À traiter manager</div>
+                        <div class="mt-1 text-2xl font-bold text-indigo-600">{{ stats.to_review }}</div>
                     </div>
                     <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                        <div class="text-xs font-medium uppercase text-gray-500">Employés</div>
-                        <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.employees }}</div>
+                        <div class="text-xs font-medium uppercase text-gray-500">À signer</div>
+                        <div class="mt-1 text-2xl font-bold text-brand-primary">{{ stats.to_sign }}</div>
                     </div>
                     <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                        <div class="text-xs font-medium uppercase text-gray-500">Heures semaine</div>
-                        <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.weeklyHours }} h</div>
+                        <div class="text-xs font-medium uppercase text-gray-500">Signés {{ currentYear }}</div>
+                        <div class="mt-1 text-2xl font-bold text-emerald-600">{{ stats.signed }}</div>
                     </div>
-                    <div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-                        <div class="text-xs font-medium uppercase text-gray-500">Contrôles du jour</div>
-                        <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.hygieneChecks }}</div>
+                    <div v-if="stats.team !== null" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                        <div class="text-xs font-medium uppercase text-gray-500">Équipe</div>
+                        <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.team }}</div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <!-- Alertes -->
-                    <div class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
-                        <h3 class="mb-3 text-base font-semibold text-gray-900 dark:text-gray-100">
-                            Alertes récentes
+                <!-- Prochains entretiens -->
+                <div class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                            Prochains entretiens
                         </h3>
-                        <ul v-if="alerts.length" class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <li v-for="(a, i) in alerts" :key="i"
-                                class="flex items-center justify-between py-2 text-sm text-gray-700 dark:text-gray-200">
-                                <span>{{ a.label }}</span>
-                                <StatusBadge :label="a.type === 'danger' ? 'Critique' : 'Attention'" :cls="a.type" />
-                            </li>
-                        </ul>
-                        <p v-else class="text-sm italic text-gray-500">
-                            Aucune alerte — tout est en ordre ✓
-                        </p>
+                        <Link :href="route('reviews.index')" class="text-sm text-brand-primary hover:underline">
+                            Voir tout →
+                        </Link>
                     </div>
-
-                    <!-- Tâches hygiène en attente -->
-                    <div class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
-                        <h3 class="mb-3 text-base font-semibold text-gray-900 dark:text-gray-100">
-                            Tâches d'hygiène en attente
-                        </h3>
-                        <ul v-if="pendingTasks.length" class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <li v-for="t in pendingTasks" :key="t.id"
-                                class="flex items-center justify-between py-2 text-sm text-gray-700 dark:text-gray-200">
-                                <span>
-                                    {{ t.zone }}
-                                    <small class="ml-1 text-gray-500">({{ t.frequency }})</small>
-                                </span>
-                                <StatusBadge :label="t.status.label" :cls="t.status.cls" />
-                            </li>
-                        </ul>
-                        <p v-else class="text-sm italic text-gray-500">
-                            Aucune tâche en attente ✓
-                        </p>
-                    </div>
+                    <ul v-if="upcoming.length" class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <li v-for="r in upcoming" :key="r.id" class="flex items-center justify-between py-2 text-sm">
+                            <div>
+                                <Link :href="route('reviews.show', r.id)"
+                                    class="font-medium text-gray-900 hover:underline dark:text-gray-100">
+                                    {{ r.employee?.name }}
+                                </Link>
+                                <span class="ml-2 text-xs text-gray-500">{{ r.employee?.position }}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-gray-500">{{ r.scheduled_for || 'Non planifié' }}</span>
+                                <StatusBadge :label="r.status_label" :cls="statusColor(r.status)" />
+                            </div>
+                        </li>
+                    </ul>
+                    <p v-else class="text-sm italic text-gray-500">
+                        Aucun entretien en cours — tout est à jour ✓
+                    </p>
                 </div>
             </div>
         </div>

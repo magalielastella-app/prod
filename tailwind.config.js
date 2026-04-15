@@ -15,21 +15,19 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
-            // Palette Smash You : beige/crème (fond) + rouge bordeaux (accent)
+            // Palette Cabinet Dentaire : teal/bleu doux (santé) + neutres clairs
             colors: {
                 brand: {
-                    // Rouge bordeaux = couleur principale/primaire
-                    primary: '#A02A2A',       // rouge principal
-                    'primary-dark': '#7F1F1F',
-                    'primary-light': '#C4453E',
-                    // Accent (rouge vif/brique)
-                    accent: '#D64545',
-                    // Beige/crème = fonds et cartes
-                    cream: '#F7EFDF',         // crème principale (fond app)
-                    beige: '#EADBC0',         // beige moyen
-                    tan: '#D9B48F',           // beige foncé (bordures)
-                    tertiary: '#FBF5E9',      // teinte claire (cartes)
-                    dark: '#2D1F1A',          // brun très foncé (texte)
+                    // Teal = couleur principale/primaire
+                    primary: '#0F766E',       // teal principal
+                    'primary-dark': '#115E59',
+                    'primary-light': '#14B8A6',
+                    accent: '#38BDF8',        // bleu ciel (accent)
+                    cream: '#F1F5F9',         // fond général (slate-100)
+                    beige: '#E2E8F0',         // bordures douces (slate-200)
+                    tan: '#94A3B8',           // bordures contrastées (slate-400)
+                    tertiary: '#ECFEFF',      // teinte très claire (cartes)
+                    dark: '#0F172A',          // texte principal (slate-900)
                 },
             },
         },

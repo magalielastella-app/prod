@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-    /* Fond général beige crème Smash You */
+    /* Fond général de l'application */
     body {
         background-color: theme('colors.brand.cream');
         color: theme('colors.brand.dark');

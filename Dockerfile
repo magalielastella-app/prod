@@ -1,4 +1,4 @@
-# Smash You — image Docker prête pour Render / Railway / Fly.io.
+# Cabinet Dentaire — Entretiens annuels : image Docker prête pour Render / Railway / Fly.io.
 # Build monolithique : installe PHP + Node, crée vendor/, construit Vite,
 # puis supprime les dev-deps pour garder l'image fine.
 
