@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/entretiens', [AnnualReviewController::class, 'index'])->name('reviews.index');
     Route::post('/entretiens', [AnnualReviewController::class, 'store'])->name('reviews.store');
     Route::get('/entretiens/{review}', [AnnualReviewController::class, 'show'])->name('reviews.show');
+    Route::get('/entretiens/{review}/imprimer', [AnnualReviewController::class, 'printable'])->name('reviews.print');
     Route::put('/entretiens/{review}/salarie', [AnnualReviewController::class, 'employeeUpdate'])->name('reviews.employee.update');
     Route::put('/entretiens/{review}/manager', [AnnualReviewController::class, 'managerUpdate'])->name('reviews.manager.update');
     Route::post('/entretiens/{review}/signer', [AnnualReviewController::class, 'sign'])->name('reviews.sign');

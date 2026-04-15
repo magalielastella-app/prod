@@ -179,6 +179,25 @@ class AnnualReviewController extends Controller
         ]);
     }
 
+    /**
+     * Vue HTML imprimable — le navigateur gère le "Enregistrer au format PDF".
+     * (Pas d'Inertia : on renvoie un document Blade autonome.)
+     */
+    public function printable(AnnualReview $review)
+    {
+        Gate::authorize('view', $review);
+
+        $review->load([
+            'employee:id,name,email,position,department,hired_on',
+            'manager:id,name,email',
+        ]);
+
+        return response()->view('reviews.print', [
+            'review' => $review,
+            'template' => $review->template(),
+        ]);
+    }
+
     /** Le salarié enregistre / envoie sa partie. */
     public function employeeUpdate(Request $request, AnnualReview $review): RedirectResponse
     {
