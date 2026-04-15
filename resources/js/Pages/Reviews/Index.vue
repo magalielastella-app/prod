@@ -3,7 +3,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import DangerButton from '@/Components/DangerButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
@@ -13,26 +12,36 @@ import { computed, ref } from 'vue';
 const props = defineProps({
     reviews: { type: Array, default: () => [] },
     employees: { type: Array, default: () => [] },
+    potentialManagers: { type: Array, default: () => [] },
     defaultYear: { type: Number, required: true },
-    can: { type: Object, default: () => ({ create: false }) },
+    can: { type: Object, default: () => ({ create: false, pickManager: false }) },
 });
 
 const page = usePage();
 const isManager = computed(() => !!page.props.auth.isManager);
 
+const blankRow = () => ({ employee_id: '', manager_id: '', scheduled_for: '' });
+
 const form = useForm({
-    employee_id: '',
     year: props.defaultYear,
-    scheduled_for: '',
+    assignments: [blankRow()],
 });
 
 const showForm = ref(false);
 
+const addRow = () => form.assignments.push(blankRow());
+const removeRow = (i) => {
+    if (form.assignments.length > 1) form.assignments.splice(i, 1);
+};
+
+// Les salariés déjà sélectionnés dans le formulaire — pour éviter les doublons
+// dans les autres dropdowns (mais on laisse voir tous les choix).
 const submit = () => {
     form.post(route('reviews.store'), {
         onSuccess: () => {
             form.reset();
             form.year = props.defaultYear;
+            form.assignments = [blankRow()];
             showForm.value = false;
         },
     });
@@ -62,7 +71,7 @@ const destroy = (id) => {
                     Entretiens annuels
                 </h2>
                 <PrimaryButton v-if="can.create" @click="showForm = !showForm">
-                    {{ showForm ? 'Annuler' : 'Planifier un entretien' }}
+                    {{ showForm ? 'Annuler' : 'Planifier des entretiens' }}
                 </PrimaryButton>
             </div>
         </template>
@@ -70,39 +79,88 @@ const destroy = (id) => {
         <div class="py-8">
             <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
 
-                <!-- Formulaire création (managers) -->
+                <!-- Formulaire planification (multi-lignes) -->
                 <div v-if="showForm && can.create" class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
                     <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
-                        Planifier un nouvel entretien
+                        Planifier un ou plusieurs entretiens
                     </h3>
-                    <form class="grid grid-cols-1 gap-4 sm:grid-cols-3" @submit.prevent="submit">
-                        <div>
-                            <InputLabel for="employee_id" value="Salarié" />
-                            <select id="employee_id" v-model="form.employee_id" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                                <option value="" disabled>— choisir —</option>
-                                <option v-for="e in employees" :key="e.id" :value="e.id">
-                                    {{ e.name }}<span v-if="e.position"> — {{ e.position }}</span>
-                                </option>
-                            </select>
-                            <InputError class="mt-2" :message="form.errors.employee_id" />
-                            <p v-if="!employees.length" class="mt-2 text-xs text-gray-500">
-                                Aucun salarié rattaché. Ajoutez des salariés et définissez leur manager pour commencer.
-                            </p>
-                        </div>
-                        <div>
+
+                    <form @submit.prevent="submit">
+                        <!-- Année commune -->
+                        <div class="mb-4 max-w-xs">
                             <InputLabel for="year" value="Année" />
-                            <TextInput id="year" v-model="form.year" type="number" min="2000" max="2100" class="mt-1 block w-full" required />
+                            <TextInput id="year" v-model="form.year" type="number" min="2000" max="2100"
+                                class="mt-1 block w-full" required />
                             <InputError class="mt-2" :message="form.errors.year" />
                         </div>
-                        <div>
-                            <InputLabel for="scheduled_for" value="Date prévue" />
-                            <TextInput id="scheduled_for" v-model="form.scheduled_for" type="date" class="mt-1 block w-full" />
-                            <InputError class="mt-2" :message="form.errors.scheduled_for" />
+
+                        <!-- Lignes d'assignation -->
+                        <div class="space-y-3">
+                            <div v-for="(row, i) in form.assignments" :key="i"
+                                class="grid grid-cols-1 gap-3 rounded border border-gray-200 p-3 sm:grid-cols-12 dark:border-gray-700">
+                                <!-- Salarié -->
+                                <div :class="can.pickManager ? 'sm:col-span-5' : 'sm:col-span-7'">
+                                    <InputLabel :for="`employee_${i}`" value="Salarié" />
+                                    <select :id="`employee_${i}`" v-model="row.employee_id" required
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                        <option value="" disabled>— choisir —</option>
+                                        <option v-for="e in employees" :key="e.id" :value="e.id">
+                                            {{ e.name }}<span v-if="e.position"> — {{ e.position }}</span>
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="form.errors[`assignments.${i}.employee_id`]" />
+                                </div>
+
+                                <!-- Manager (admin seulement) -->
+                                <div v-if="can.pickManager" class="sm:col-span-4">
+                                    <InputLabel :for="`manager_${i}`" value="Manager qui conduira l'entretien" />
+                                    <select :id="`manager_${i}`" v-model="row.manager_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                        <option value="">— moi-même —</option>
+                                        <option v-for="m in potentialManagers" :key="m.id" :value="m.id"
+                                            :disabled="m.id === row.employee_id">
+                                            {{ m.name }}<span v-if="m.position"> — {{ m.position }}</span>
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="form.errors[`assignments.${i}.manager_id`]" />
+                                </div>
+
+                                <!-- Date -->
+                                <div class="sm:col-span-2">
+                                    <InputLabel :for="`date_${i}`" value="Date prévue" />
+                                    <TextInput :id="`date_${i}`" v-model="row.scheduled_for" type="date"
+                                        class="mt-1 block w-full" />
+                                    <InputError class="mt-2" :message="form.errors[`assignments.${i}.scheduled_for`]" />
+                                </div>
+
+                                <!-- Retirer la ligne -->
+                                <div class="sm:col-span-1 flex items-end">
+                                    <button type="button"
+                                        class="w-full rounded border border-red-200 px-2 py-2 text-xs text-red-600 hover:bg-red-50 disabled:opacity-40"
+                                        :disabled="form.assignments.length === 1"
+                                        @click="removeRow(i)">
+                                        Retirer
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="sm:col-span-3 flex justify-end gap-2">
+
+                        <div class="mt-3">
+                            <SecondaryButton type="button" @click="addRow">
+                                + Ajouter une personne
+                            </SecondaryButton>
+                        </div>
+
+                        <p v-if="!employees.length" class="mt-3 text-xs text-gray-500">
+                            Aucun salarié enregistré. Ajoutez d'abord les membres de l'équipe dans l'onglet
+                            « Équipe ».
+                        </p>
+
+                        <div class="mt-5 flex justify-end gap-2">
                             <SecondaryButton type="button" @click="showForm = false">Annuler</SecondaryButton>
-                            <PrimaryButton :disabled="form.processing">Planifier</PrimaryButton>
+                            <PrimaryButton :disabled="form.processing">
+                                Planifier ({{ form.assignments.length }})
+                            </PrimaryButton>
                         </div>
                     </form>
                 </div>

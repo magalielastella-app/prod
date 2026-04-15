@@ -55,10 +55,26 @@ class AnnualReviewController extends Controller
         ]);
 
         $employees = [];
-        if ($user->isManager()) {
+        $potentialManagers = [];
+        if ($user->isAdmin()) {
+            // L'admin peut planifier un entretien pour n'importe qui
+            // (y compris pour les autres dentistes et pour lui-même).
             $employees = User::query()
-                ->where('role', User::ROLE_EMPLOYEE)
-                ->when(! $user->isAdmin(), fn ($q) => $q->where('manager_id', $user->id))
+                ->orderBy('position')
+                ->orderBy('name')
+                ->get(['id', 'name', 'email', 'position', 'department']);
+
+            // … et peut choisir comme manager de l'entretien n'importe
+            // quel manager / admin (utile : un dentiste en évalue un autre).
+            $potentialManagers = User::query()
+                ->whereIn('role', [User::ROLE_MANAGER, User::ROLE_ADMIN])
+                ->orderBy('name')
+                ->get(['id', 'name', 'position']);
+        } elseif ($user->isManager()) {
+            // Un manager non-admin ne voit que ses propres subordonnés,
+            // et lui-même reste forcément le manager de l'entretien.
+            $employees = User::query()
+                ->where('manager_id', $user->id)
                 ->orderBy('name')
                 ->get(['id', 'name', 'email', 'position', 'department']);
         }
@@ -66,41 +82,86 @@ class AnnualReviewController extends Controller
         return Inertia::render('Reviews/Index', [
             'reviews' => $reviews,
             'employees' => $employees,
+            'potentialManagers' => $potentialManagers,
             'defaultYear' => (int) Carbon::now()->year,
             'can' => [
                 'create' => $user->isManager(),
+                'pickManager' => $user->isAdmin(),
             ],
         ]);
     }
 
-    /** Le manager planifie un nouvel entretien. */
+    /**
+     * Planifie un ou plusieurs entretiens. Accepte une liste d'assignations :
+     *   year, assignments: [{ employee_id, manager_id?, scheduled_for? }]
+     */
     public function store(Request $request): RedirectResponse
     {
         Gate::authorize('create', AnnualReview::class);
 
         $data = $request->validate([
-            'employee_id' => ['required', 'exists:users,id'],
             'year' => ['required', 'integer', 'min:2000', 'max:2100'],
-            'scheduled_for' => ['nullable', 'date'],
+            'assignments' => ['required', 'array', 'min:1'],
+            'assignments.*.employee_id' => ['required', 'exists:users,id'],
+            'assignments.*.manager_id' => ['nullable', 'exists:users,id'],
+            'assignments.*.scheduled_for' => ['nullable', 'date'],
         ]);
 
-        $employee = User::findOrFail($data['employee_id']);
+        $currentUser = $request->user();
+        $created = 0;
+        $skipped = [];
 
-        if (! $request->user()->isAdmin()
-            && $employee->manager_id !== $request->user()->id) {
-            abort(403, "Vous n'êtes pas le manager de ce salarié.");
+        foreach ($data['assignments'] as $row) {
+            $employee = User::find($row['employee_id']);
+            if (! $employee) { continue; }
+
+            // Détermine le manager de l'entretien :
+            //  - admin : peut choisir librement (par défaut : lui-même)
+            //  - manager non-admin : c'est forcément lui, sur son subordonné
+            if ($currentUser->isAdmin()) {
+                $managerId = $row['manager_id'] ?? $currentUser->id;
+                $manager = User::find($managerId);
+                if (! $manager || ! in_array($manager->role, [User::ROLE_MANAGER, User::ROLE_ADMIN], true)) {
+                    $skipped[] = "{$employee->name} : manager invalide";
+                    continue;
+                }
+                if ($manager->id === $employee->id) {
+                    $skipped[] = "{$employee->name} : le salarié ne peut pas être son propre manager";
+                    continue;
+                }
+            } else {
+                if ($employee->manager_id !== $currentUser->id) {
+                    $skipped[] = "{$employee->name} : vous n'êtes pas son manager";
+                    continue;
+                }
+                $managerId = $currentUser->id;
+            }
+
+            // Unicité (employee_id + year) — on ignore silencieusement les doublons
+            $exists = AnnualReview::where('employee_id', $employee->id)
+                ->where('year', $data['year'])
+                ->exists();
+            if ($exists) {
+                $skipped[] = "{$employee->name} : déjà un entretien pour {$data['year']}";
+                continue;
+            }
+
+            AnnualReview::create([
+                'employee_id' => $employee->id,
+                'manager_id' => $managerId,
+                'year' => $data['year'],
+                'scheduled_for' => $row['scheduled_for'] ?? null,
+                'status' => AnnualReview::STATUS_SCHEDULED,
+                'template_key' => ReviewTemplate::keyForPosition($employee->position),
+            ]);
+            $created++;
         }
 
-        AnnualReview::create([
-            'employee_id' => $employee->id,
-            'manager_id' => $request->user()->id,
-            'year' => $data['year'],
-            'scheduled_for' => $data['scheduled_for'] ?? null,
-            'status' => AnnualReview::STATUS_SCHEDULED,
-            'template_key' => ReviewTemplate::keyForPosition($employee->position),
-        ]);
-
-        return redirect()->route('reviews.index')->with('success', 'Entretien planifié');
+        $msg = $created . ' entretien' . ($created > 1 ? 's' : '') . ' planifié' . ($created > 1 ? 's' : '');
+        if (! empty($skipped)) {
+            $msg .= ' — ignorés : ' . implode(' ; ', $skipped);
+        }
+        return redirect()->route('reviews.index')->with($created > 0 ? 'success' : 'error', $msg);
     }
 
     public function show(AnnualReview $review): Response
