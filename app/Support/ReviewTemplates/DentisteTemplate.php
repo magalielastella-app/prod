@@ -26,14 +26,7 @@ class DentisteTemplate
             ],
             'sections' => [
                 [
-                    'title' => '01. [à compléter]',
-                    'fields' => [
-                        // Contenu de la section 1 non encore fourni — placeholder provisoire.
-                        ['type' => 'textarea', 'key' => 'section1_placeholder', 'question' => '(Section en attente — merci de fournir le contenu.)', 'owner' => 'employee'],
-                    ],
-                ],
-                [
-                    'title' => '02. Activité professionnelle & organisation',
+                    'title' => '01. Activité professionnelle & organisation',
                     'fields' => [
                         ['type' => 'textarea', 'key' => 'bilan_annee', 'question' => "Bilan de l'année écoulée : quels sont vos réussites et points forts cette année dans votre pratique ?", 'owner' => 'employee'],
                         ['type' => 'textarea', 'key' => 'difficultes', 'question' => 'Difficultés rencontrées : quels obstacles ou sources de frustration avez-vous rencontrés dans votre activité ?', 'owner' => 'employee'],
@@ -44,7 +37,7 @@ class DentisteTemplate
                     ],
                 ],
                 [
-                    'title' => '03. Développement professionnel',
+                    'title' => '02. Développement professionnel',
                     'fields' => [
                         ['type' => 'textarea', 'key' => 'competences_renforcer', 'question' => "Compétences à renforcer : y a-t-il des techniques ou connaissances que vous aimeriez approfondir ou développer ?", 'owner' => 'employee'],
                         ['type' => 'textarea', 'key' => 'formations', 'question' => "Formations et spécialisations : souhaitez-vous suivre des formations spécifiques dans l'année à venir ?", 'owner' => 'employee'],
@@ -53,7 +46,7 @@ class DentisteTemplate
                     ],
                 ],
                 [
-                    'title' => '04. Relation patient',
+                    'title' => '03. Relation patient',
                     'fields' => [
                         ['type' => 'textarea', 'key' => 'satisfaction_patients', 'question' => 'Satisfaction des patients : selon vous, comment les patients perçoivent-ils la qualité de vos soins et de votre accompagnement ?', 'owner' => 'employee'],
                         ['type' => 'textarea', 'key' => 'experience_patient', 'question' => "Expérience patient : quelles améliorations pourraient être mises en place pour optimiser l'accueil, le suivi ou la relation avec les patients ?", 'owner' => 'employee'],
@@ -61,7 +54,7 @@ class DentisteTemplate
                     ],
                 ],
                 [
-                    'title' => '05. Bien-être & équilibre personnel',
+                    'title' => '04. Bien-être & équilibre personnel',
                     'fields' => [
                         ['type' => 'textarea', 'key' => 'equilibre_pro_perso', 'question' => 'Équilibre vie pro / vie perso : arrivez-vous à préserver un équilibre satisfaisant entre travail et vie privée ?', 'owner' => 'employee'],
                         ['type' => 'textarea', 'key' => 'sante_bien_etre', 'question' => "Santé et bien-être : qu'est-ce qui vous aide à gérer le stress lié à votre métier ? Auriez-vous besoin de soutien supplémentaire ?", 'owner' => 'employee'],
