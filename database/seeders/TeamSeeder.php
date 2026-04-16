@@ -41,15 +41,24 @@ class TeamSeeder extends Seeder
         );
 
         //
-        // 2) Dentistes (managers) — emails à confirmer par le cabinet.
-        //    Les binômes "Dr X" référencés dans la colonne "Rattachement"
-        //    de la liste des salariés pointent vers ces comptes.
+        // 2) Dentistes / Chirurgiens-dentistes (role = manager).
+        //    Les entretiens des dentistes sont conduits entre pairs ;
+        //    leur user.manager_id reste null (ils sont au sommet de
+        //    la hiérarchie, pas évalués par la directrice).
         //
         $dentistsSpec = [
-            ['email' => 'thibault.andeol@cabinetdentaireobiou.fr', 'name' => 'Dr Thibault ANDEOL', 'password' => 'Obiou9124'],
-            ['email' => 'robin.basset@cabinetdentaireobiou.fr',    'name' => 'Dr Robin BASSET',    'password' => 'Obiou6405'],
-            ['email' => 'thomas.meier@cabinetdentaireobiou.fr',    'name' => 'Dr Thomas MEIER',    'password' => 'Obiou2748'],
-            ['email' => 'agathe.merindol@cabinetdentaireobiou.fr', 'name' => 'Dr Agathe MERINDOL', 'password' => 'Obiou8371'],
+            ['email' => 'tandeol@hotmail.fr',                'name' => 'Thibault ANDEOL',    'password' => 'Obiou9124'],
+            ['email' => 'robin.basset@me.com',               'name' => 'Robin BASSET',       'password' => 'Obiou6405'],
+            ['email' => 'drmeierthomas@gmail.com',           'name' => 'Thomas MEIER',       'password' => 'Obiou2748'],
+            ['email' => 'dr.merindol@gmail.com',             'name' => 'Agathe MERINDOL',    'password' => 'Obiou8371'],
+            ['email' => 'adaudeville@gmail.com',             'name' => 'Alice DAUDEVILLE',   'password' => 'Obiou4512'],
+            ['email' => 'caro.donadieu@gmail.com',           'name' => 'Caroline DONADIEU',  'password' => 'Obiou8739'],
+            ['email' => 'dr.rach.lei@gmail.com',             'name' => 'Leila RACHIDI',      'password' => 'Obiou3256'],
+            ['email' => 'tifenn8@hotmail.fr',                'name' => 'Tifenn MANCHE',      'password' => 'Obiou6041'],
+            ['email' => 'loic.fontanel@gmail.com',           'name' => 'Loic FONTANEL',      'password' => 'Obiou1387'],
+            ['email' => 'dr.wiktoria.orysiak@gmail.com',     'name' => 'Wiktoria ORYSIAK',   'password' => 'Obiou7923'],
+            ['email' => 'perrine.obstetar@hotmail.fr',       'name' => 'Perrine OBSTETAR',   'password' => 'Obiou5468'],
+            ['email' => 'docteur.renecorail@gmail.com',      'name' => 'Diane RENE CORAIL',  'password' => 'Obiou9652'],
         ];
 
         $dentistByName = [];
@@ -70,33 +79,33 @@ class TeamSeeder extends Seeder
         //
         // 3) Assistantes et référentes (role = employee)
         //    Format : [email, name, position_key, manager_name, temp_password]
-        //    position_key : 'dent' = Assistante dentaire, 'admin' = Assistante administrative
+        //    position_key : 'dent' / 'admin' / 'ref_clinique' / 'ref_admin' / 'ref_steril'
         //
         $employees = [
-            ['anae.baron28@gmail.com',        'Anaé BARON',            'admin', 'Magalie LASTELLA',   'Obiou2941'],
-            ['laura.chaudet@hotmail.com',     'Laura CHAUDET',         'dent',  'Dr Thibault ANDEOL', 'Obiou5037'],
-            ['julie@delbar.fr',               'Julie DELBAR',          'dent',  'Dr Robin BASSET',    'Obiou6128'],
-            ['cloclotempesta@gmail.com',      'Chloé DIAFERIA',        'dent',  'Dr Thomas MEIER',    'Obiou4216'],
-            ['chgeeraert@gmail.com',          'Christel GIODDA',       'dent',  'Dr Agathe MERINDOL', 'Obiou9384'],
-            ['audreylambert.b@gmail.com',     'Audrey LAMBERT',        'ref_clinique', 'Magalie LASTELLA',   'Obiou1572'],
-            ['veronique.larsen@laposte.net',  'Véronique LARSEN',      'admin', 'Magalie LASTELLA',   'Obiou8063'],
-            ['julopes@hotmail.fr',            'Julie LOPES',           'admin', 'Magalie LASTELLA',   'Obiou3719'],
-            ['taoutaoulinda@gmail.com',       'Linda MAKHLOUCHE',      'dent',  'Dr Agathe MERINDOL', 'Obiou6842'],
-            ['echelard.e@gmail.com',          'Elisa MARCHISIO',       'admin', 'Magalie LASTELLA',   'Obiou4591'],
-            ['lauriemasnada@hotmail.com',     'Laure MASNADA',         'dent',  'Dr Robin BASSET',    'Obiou2376'],
-            ['fmazzilli9@icloud.com',         'Fiona MAZZILLI',        'dent',  'Dr Thomas MEIER',    'Obiou7051'],
-            ['severine.de-palma@orange.fr',   'Severine MULERO',       'ref_admin', 'Magalie LASTELLA',   'Obiou5284'],
-            ['cristianoanea@yahoo.com',       'Cristian OANEA',        'dent',  'Dr Thibault ANDEOL', 'Obiou9617'],
-            ['palamuso.marine91@gmail.com',   'Marine PALAMUSO',       'dent',  'Dr Robin BASSET',    'Obiou3462'],
-            ['melissa.ptrtp@gmail.com',       'Melissa PATIR',         'admin', 'Magalie LASTELLA',   'Obiou8190'],
-            ['lolprost@gmail.com',            'Laurence PROST',        'dent',  'Dr Robin BASSET',    'Obiou5743'],
-            ['claudiarivasr85@gmail.com',     'Claudia RIVAS',         'dent',  'Dr Thibault ANDEOL', 'Obiou2905'],
-            ['charlotterocahague@yahoo.fr',   'Charlotte ROCA-HAGUE',  'dent',  'Dr Thibault ANDEOL', 'Obiou6831'],
-            ['sarasara38400@gmail.com',       'Sara ROCCHI',           'dent',  'Dr Agathe MERINDOL', 'Obiou4057'],
-            ['sarahpatu@hotmail.fr',          'Sarah SAUMON',          'ref_steril', 'Magalie LASTELLA',   'Obiou7629'],
-            ['trapieremma@outlook.fr',        'Emma TRAPIER',          'dent',  'Dr Thomas MEIER',    'Obiou1843'],
-            ['clara.vazm@outlook.fr',         'Clara VAZ MARQUES',     'admin', 'Magalie LASTELLA',   'Obiou5076'],
-            ['berra.gyorur@gmail.com',        'Berra YORUR',           'dent',  'Dr Thomas MEIER',    'Obiou3598'],
+            ['anae.baron28@gmail.com',        'Anaé BARON',            'admin',         'Magalie LASTELLA',  'Obiou2941'],
+            ['laura.chaudet@hotmail.com',     'Laura CHAUDET',         'dent',          'Thibault ANDEOL',   'Obiou5037'],
+            ['julie@delbar.fr',               'Julie DELBAR',          'dent',          'Robin BASSET',      'Obiou6128'],
+            ['cloclotempesta@gmail.com',      'Chloé DIAFERIA',        'dent',          'Thomas MEIER',      'Obiou4216'],
+            ['chgeeraert@gmail.com',          'Christel GIODDA',       'dent',          'Agathe MERINDOL',   'Obiou9384'],
+            ['audreylambert.b@gmail.com',     'Audrey LAMBERT',        'ref_clinique',  'Magalie LASTELLA',  'Obiou1572'],
+            ['veronique.larsen@laposte.net',  'Véronique LARSEN',      'admin',         'Magalie LASTELLA',  'Obiou8063'],
+            ['julopes@hotmail.fr',            'Julie LOPES',           'admin',         'Magalie LASTELLA',  'Obiou3719'],
+            ['taoutaoulinda@gmail.com',       'Linda MAKHLOUCHE',      'dent',          'Agathe MERINDOL',   'Obiou6842'],
+            ['echelard.e@gmail.com',          'Elisa MARCHISIO',       'admin',         'Magalie LASTELLA',  'Obiou4591'],
+            ['lauriemasnada@hotmail.com',     'Laure MASNADA',         'dent',          'Robin BASSET',      'Obiou2376'],
+            ['fmazzilli9@icloud.com',         'Fiona MAZZILLI',        'dent',          'Thomas MEIER',      'Obiou7051'],
+            ['severine.de-palma@orange.fr',   'Severine MULERO',       'ref_admin',     'Magalie LASTELLA',  'Obiou5284'],
+            ['cristianoanea@yahoo.com',       'Cristian OANEA',        'dent',          'Thibault ANDEOL',   'Obiou9617'],
+            ['palamuso.marine91@gmail.com',   'Marine PALAMUSO',       'dent',          'Robin BASSET',      'Obiou3462'],
+            ['melissa.ptrtp@gmail.com',       'Melissa PATIR',         'admin',         'Magalie LASTELLA',  'Obiou8190'],
+            ['lolprost@gmail.com',            'Laurence PROST',        'dent',          'Robin BASSET',      'Obiou5743'],
+            ['claudiarivasr85@gmail.com',     'Claudia RIVAS',         'dent',          'Thibault ANDEOL',   'Obiou2905'],
+            ['charlotterocahague@yahoo.fr',   'Charlotte ROCA-HAGUE',  'dent',          'Thibault ANDEOL',   'Obiou6831'],
+            ['sarasara38400@gmail.com',       'Sara ROCCHI',           'dent',          'Agathe MERINDOL',   'Obiou4057'],
+            ['sarahpatu@hotmail.fr',          'Sarah SAUMON',          'ref_steril',    'Magalie LASTELLA',  'Obiou7629'],
+            ['trapieremma@outlook.fr',        'Emma TRAPIER',          'dent',          'Thomas MEIER',      'Obiou1843'],
+            ['clara.vazm@outlook.fr',         'Clara VAZ MARQUES',     'admin',         'Magalie LASTELLA',  'Obiou5076'],
+            ['berra.gyorur@gmail.com',        'Berra YORUR',           'dent',          'Thomas MEIER',      'Obiou3598'],
         ];
 
         $created = 0;
@@ -127,7 +136,7 @@ class TeamSeeder extends Seeder
                     'password' => Hash::make($password),
                     'role' => User::ROLE_EMPLOYEE,
                     'position' => $position,
-                    'department' => $posKey === 'admin' ? 'Administratif' : 'Soins',
+                    'department' => in_array($posKey, ['admin', 'ref_admin'], true) ? 'Administratif' : 'Soins',
                     'manager_id' => $manager->id,
                     'must_change_password' => true,
                 ]
@@ -141,22 +150,30 @@ class TeamSeeder extends Seeder
         }
 
         //
-        // 4) Nettoyage des comptes de démonstration.
+        // 4) Nettoyage des comptes de démonstration et des anciens
+        //    placeholders @cabinetdentaireobiou.fr créés avant la
+        //    réception de la liste réelle des dentistes.
         //
-        $demoEmails = [
+        $obsoleteEmails = [
+            // démo initiale
             'directrice@cabinet.fr',
             'dentiste@cabinet.fr',
             'amelie.assistante@cabinet.fr',
             'karim.assistant@cabinet.fr',
             'sophie.admin@cabinet.fr',
             'demo@smashyou.fr',
+            // placeholders dentistes (avant réception des vrais emails)
+            'thibault.andeol@cabinetdentaireobiou.fr',
+            'robin.basset@cabinetdentaireobiou.fr',
+            'thomas.meier@cabinetdentaireobiou.fr',
+            'agathe.merindol@cabinetdentaireobiou.fr',
         ];
-        $deleted = User::whereIn('email', $demoEmails)->delete();
+        $deleted = User::whereIn('email', $obsoleteEmails)->delete();
 
         $this->command->info("TeamSeeder terminé :");
-        $this->command->info("  • 1 directrice · 4 dentistes · {$created} salarié(e)s créé(e)s (" . ($skipped ? $skipped . ' existait(ent) déjà' : 'tous nouveaux') . ")");
+        $this->command->info("  • 1 directrice · " . count($dentistsSpec) . " dentistes · {$created} salarié(e)s créé(e)s (" . ($skipped ? $skipped . ' existait(ent) déjà' : 'tous nouveaux') . ")");
         if ($deleted > 0) {
-            $this->command->info("  • {$deleted} compte(s) de démo supprimé(s)");
+            $this->command->info("  • {$deleted} compte(s) obsolète(s) supprimé(s)");
         }
     }
 }
