@@ -4,6 +4,7 @@ use App\Http\Controllers\AnnualReviewController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TemplateController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->middleware(['auth'])->name('dashboard');
@@ -24,6 +25,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/entretiens/{review}/manager', [AnnualReviewController::class, 'managerUpdate'])->name('reviews.manager.update');
     Route::post('/entretiens/{review}/signer', [AnnualReviewController::class, 'sign'])->name('reviews.sign');
     Route::delete('/entretiens/{review}', [AnnualReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // ---------- Trames d'entretien (admin) ----------
+    Route::get('/trames', [TemplateController::class, 'index'])->name('templates.index');
+    Route::get('/trames/{key}', [TemplateController::class, 'edit'])->name('templates.edit');
+    Route::put('/trames/{key}', [TemplateController::class, 'update'])->name('templates.update');
 
     // ---------- Équipe (admin) ----------
     Route::get('/equipe', [TeamController::class, 'index'])->name('team.index');

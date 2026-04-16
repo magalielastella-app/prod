@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\ReviewTemplateModel;
 use App\Support\ReviewTemplates\AdminAssistantTemplate;
 use App\Support\ReviewTemplates\AssistantTemplate;
 use App\Support\ReviewTemplates\DentisteTemplate;
@@ -9,6 +10,10 @@ use App\Support\ReviewTemplates\DirectriceTemplate;
 
 /**
  * Registre des trames d'entretien annuel.
+ *
+ * Résolution : la base de données (table review_templates) est
+ * consultée en priorité ; si la trame n'existe pas encore en base,
+ * on retombe sur la définition PHP statique.
  */
 class ReviewTemplate
 {
@@ -16,8 +21,49 @@ class ReviewTemplate
 
     /**
      * Renvoie la définition d'une trame à partir de sa clé.
+     * DB d'abord, fallback PHP ensuite.
      */
     public static function get(string $key): array
+    {
+        $db = ReviewTemplateModel::where('key', $key)->first();
+        if ($db) {
+            return $db->toDefinition();
+        }
+
+        return self::getFromPhp($key);
+    }
+
+    /**
+     * Récupère toutes les trames connues (DB puis complétées par le PHP).
+     */
+    public static function all(): array
+    {
+        $dbTemplates = ReviewTemplateModel::all()->keyBy('key');
+        $phpKeys = [
+            AssistantTemplate::KEY,
+            AdminAssistantTemplate::KEY,
+            DirectriceTemplate::KEY,
+            DentisteTemplate::KEY,
+        ];
+
+        $result = [];
+        foreach ($phpKeys as $k) {
+            if ($dbTemplates->has($k)) {
+                $result[] = $dbTemplates->get($k)->toDefinition();
+            } else {
+                $result[] = self::getFromPhp($k);
+            }
+        }
+        // Ajouter les trames DB-only (créées via l'UI, pas en PHP)
+        foreach ($dbTemplates as $k => $model) {
+            if (! in_array($k, $phpKeys, true)) {
+                $result[] = $model->toDefinition();
+            }
+        }
+        return $result;
+    }
+
+    private static function getFromPhp(string $key): array
     {
         return match ($key) {
             AssistantTemplate::KEY => AssistantTemplate::definition(),

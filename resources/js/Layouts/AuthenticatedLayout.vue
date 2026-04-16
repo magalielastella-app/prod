@@ -38,6 +38,7 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
                             <div class="hidden space-x-5 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</NavLink>
                                 <NavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</NavLink>
+                                <NavLink v-if="isAdmin" :href="route('templates.index')" :active="route().current('templates.*')">Trames</NavLink>
                                 <NavLink v-if="isAdmin" :href="route('team.index')" :active="route().current('team.*')">Équipe</NavLink>
                             </div>
                         </div>
@@ -81,6 +82,7 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="isAdmin" :href="route('templates.index')" :active="route().current('templates.*')">Trames</ResponsiveNavLink>
                         <ResponsiveNavLink v-if="isAdmin" :href="route('team.index')" :active="route().current('team.*')">Équipe</ResponsiveNavLink>
                     </div>
                     <div class="border-t border-brand-tan/50 pb-1 pt-4 dark:border-gray-600">
