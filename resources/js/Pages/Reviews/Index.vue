@@ -18,7 +18,6 @@ const props = defineProps({
 });
 
 const page = usePage();
-const isManager = computed(() => !!page.props.auth.isManager);
 
 const blankRow = () => ({ employee_id: '', manager_id: '', scheduled_for: '' });
 
@@ -195,7 +194,7 @@ const destroy = (id) => {
                                         class="text-brand-primary hover:underline">Ouvrir</Link>
                                     <a :href="route('reviews.pdf', r.id)"
                                         class="text-brand-primary hover:underline">PDF</a>
-                                    <button v-if="isManager && !r.signed"
+                                    <button v-if="can.delete && !r.signed"
                                         class="text-red-600 hover:underline" @click="destroy(r.id)">
                                         Supprimer
                                     </button>

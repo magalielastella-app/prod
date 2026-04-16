@@ -54,29 +54,19 @@ class AnnualReviewController extends Controller
             'is_mine' => $r->employee_id === $user->id,
         ]);
 
+        // Seule la directrice (admin) peut planifier des entretiens.
         $employees = [];
         $potentialManagers = [];
         if ($user->isAdmin()) {
-            // L'admin peut planifier un entretien pour n'importe qui
-            // (y compris pour les autres dentistes et pour lui-même).
             $employees = User::query()
                 ->orderBy('position')
                 ->orderBy('name')
                 ->get(['id', 'name', 'email', 'position', 'department']);
 
-            // … et peut choisir comme manager de l'entretien n'importe
-            // quel manager / admin (utile : un dentiste en évalue un autre).
             $potentialManagers = User::query()
                 ->whereIn('role', [User::ROLE_MANAGER, User::ROLE_ADMIN])
                 ->orderBy('name')
                 ->get(['id', 'name', 'position']);
-        } elseif ($user->isManager()) {
-            // Un manager non-admin ne voit que ses propres subordonnés,
-            // et lui-même reste forcément le manager de l'entretien.
-            $employees = User::query()
-                ->where('manager_id', $user->id)
-                ->orderBy('name')
-                ->get(['id', 'name', 'email', 'position', 'department']);
         }
 
         return Inertia::render('Reviews/Index', [
@@ -85,8 +75,9 @@ class AnnualReviewController extends Controller
             'potentialManagers' => $potentialManagers,
             'defaultYear' => (int) Carbon::now()->year,
             'can' => [
-                'create' => $user->isManager(),
+                'create' => $user->isAdmin(),
                 'pickManager' => $user->isAdmin(),
+                'delete' => $user->isAdmin(),
             ],
         ]);
     }

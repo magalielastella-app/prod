@@ -42,9 +42,7 @@ class DashboardController extends Controller
             'to_sign' => (clone $scoped)->where('status', AnnualReview::STATUS_COMPLETED)->count(),
             'signed' => (clone $scoped)->where('status', AnnualReview::STATUS_SIGNED)
                 ->where('year', $currentYear)->count(),
-            'team' => $user->isAdmin()
-                ? User::count()
-                : ($user->isManager() ? User::where('manager_id', $user->id)->count() : null),
+            'team' => $user->isAdmin() ? User::count() : null,
         ];
 
         $upcoming = (clone $baseQuery)
