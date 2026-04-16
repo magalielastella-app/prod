@@ -7,6 +7,9 @@ use App\Support\ReviewTemplates\AdminAssistantTemplate;
 use App\Support\ReviewTemplates\AssistantTemplate;
 use App\Support\ReviewTemplates\DentisteTemplate;
 use App\Support\ReviewTemplates\DirectriceTemplate;
+use App\Support\ReviewTemplates\ReferenteAdministrativeTemplate;
+use App\Support\ReviewTemplates\ReferenteCliniqueTemplate;
+use App\Support\ReviewTemplates\ReferenteSterilisationTemplate;
 
 /**
  * Registre des trames d'entretien annuel.
@@ -44,6 +47,9 @@ class ReviewTemplate
             AdminAssistantTemplate::KEY,
             DirectriceTemplate::KEY,
             DentisteTemplate::KEY,
+            ReferenteCliniqueTemplate::KEY,
+            ReferenteSterilisationTemplate::KEY,
+            ReferenteAdministrativeTemplate::KEY,
         ];
 
         $result = [];
@@ -70,6 +76,9 @@ class ReviewTemplate
             AdminAssistantTemplate::KEY => AdminAssistantTemplate::definition(),
             DirectriceTemplate::KEY => DirectriceTemplate::definition(),
             DentisteTemplate::KEY => DentisteTemplate::definition(),
+            ReferenteCliniqueTemplate::KEY => ReferenteCliniqueTemplate::definition(),
+            ReferenteSterilisationTemplate::KEY => ReferenteSterilisationTemplate::definition(),
+            ReferenteAdministrativeTemplate::KEY => ReferenteAdministrativeTemplate::definition(),
             default => AssistantTemplate::definition(),
         };
     }
@@ -80,15 +89,13 @@ class ReviewTemplate
     public static function keyForPosition(?string $position): string
     {
         return match ($position) {
-            Positions::DENTAL_ASSISTANT,
-            Positions::CLINICAL_REFERENT,
-            Positions::STERILIZATION_REFERENT => AssistantTemplate::KEY,
-
-            Positions::ADMIN_ASSISTANT,
-            Positions::ADMIN_REFERENT => AdminAssistantTemplate::KEY,
-
+            Positions::DENTAL_ASSISTANT => AssistantTemplate::KEY,
+            Positions::ADMIN_ASSISTANT => AdminAssistantTemplate::KEY,
             Positions::OPERATIONS_DIRECTOR => DirectriceTemplate::KEY,
             Positions::DENTIST => DentisteTemplate::KEY,
+            Positions::CLINICAL_REFERENT => ReferenteCliniqueTemplate::KEY,
+            Positions::STERILIZATION_REFERENT => ReferenteSterilisationTemplate::KEY,
+            Positions::ADMIN_REFERENT => ReferenteAdministrativeTemplate::KEY,
             default => self::DEFAULT,
         };
     }

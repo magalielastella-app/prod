@@ -7,11 +7,14 @@ use App\Support\ReviewTemplates\AdminAssistantTemplate;
 use App\Support\ReviewTemplates\AssistantTemplate;
 use App\Support\ReviewTemplates\DentisteTemplate;
 use App\Support\ReviewTemplates\DirectriceTemplate;
+use App\Support\ReviewTemplates\ReferenteAdministrativeTemplate;
+use App\Support\ReviewTemplates\ReferenteCliniqueTemplate;
+use App\Support\ReviewTemplates\ReferenteSterilisationTemplate;
 use Illuminate\Database\Seeder;
 
 /**
- * Initialise la table review_templates à partir des 4 trames
- * définies en PHP. Idempotent (updateOrCreate).
+ * Initialise la table review_templates à partir des trames définies
+ * en PHP. Idempotent (updateOrCreate).
  *
  * Exécution :  php artisan db:seed --class=ReviewTemplateSeeder --force
  */
@@ -24,6 +27,9 @@ class ReviewTemplateSeeder extends Seeder
             AdminAssistantTemplate::definition(),
             DirectriceTemplate::definition(),
             DentisteTemplate::definition(),
+            ReferenteCliniqueTemplate::definition(),
+            ReferenteSterilisationTemplate::definition(),
+            ReferenteAdministrativeTemplate::definition(),
         ];
 
         foreach ($templates as $t) {
