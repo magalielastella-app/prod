@@ -1,0 +1,155 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use App\Support\Positions;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+
+/**
+ * Import de l'équipe réelle du Cabinet Dentaire de l'Obiou.
+ *
+ * Exécution :  php artisan db:seed --class=TeamSeeder --force
+ *
+ * Particularités :
+ *  - Chaque compte reçoit un mot de passe temporaire unique.
+ *  - must_change_password = true → la personne est forcée de choisir
+ *    son propre mot de passe à la première connexion.
+ *  - Le seeder est idempotent (firstOrCreate) : on peut le relancer
+ *    sans écraser les comptes existants.
+ *  - Les comptes de démo (directrice@cabinet.fr, etc.) sont supprimés
+ *    en fin d'exécution.
+ */
+class TeamSeeder extends Seeder
+{
+    public function run(): void
+    {
+        //
+        // 1) Directrice d'exploitation (admin)
+        //
+        $magalie = User::firstOrCreate(
+            ['email' => 'gestion@cabinetdentaireobiou.fr'],
+            [
+                'name' => 'Magalie LASTELLA',
+                'password' => Hash::make('Obiou7823'),
+                'role' => User::ROLE_ADMIN,
+                'position' => Positions::OPERATIONS_DIRECTOR,
+                'department' => 'Direction',
+                'must_change_password' => true,
+            ]
+        );
+
+        //
+        // 2) Dentistes (managers) — emails à confirmer par le cabinet.
+        //    Les binômes "Dr X" référencés dans la colonne "Rattachement"
+        //    de la liste des salariés pointent vers ces comptes.
+        //
+        $dentistsSpec = [
+            ['email' => 'thibault.andeol@cabinetdentaireobiou.fr', 'name' => 'Dr Thibault ANDEOL', 'password' => 'Obiou9124'],
+            ['email' => 'robin.basset@cabinetdentaireobiou.fr',    'name' => 'Dr Robin BASSET',    'password' => 'Obiou6405'],
+            ['email' => 'thomas.meier@cabinetdentaireobiou.fr',    'name' => 'Dr Thomas MEIER',    'password' => 'Obiou2748'],
+            ['email' => 'agathe.merindol@cabinetdentaireobiou.fr', 'name' => 'Dr Agathe MERINDOL', 'password' => 'Obiou8371'],
+        ];
+
+        $dentistByName = [];
+        foreach ($dentistsSpec as $d) {
+            $dentistByName[$d['name']] = User::firstOrCreate(
+                ['email' => $d['email']],
+                [
+                    'name' => $d['name'],
+                    'password' => Hash::make($d['password']),
+                    'role' => User::ROLE_MANAGER,
+                    'position' => Positions::DENTIST,
+                    'department' => 'Soins',
+                    'must_change_password' => true,
+                ]
+            );
+        }
+
+        //
+        // 3) Assistantes et référentes (role = employee)
+        //    Format : [email, name, position_key, manager_name, temp_password]
+        //    position_key : 'dent' = Assistante dentaire, 'admin' = Assistante administrative
+        //
+        $employees = [
+            ['anae.baron28@gmail.com',        'Anaé BARON',            'admin', 'Magalie LASTELLA',   'Obiou2941'],
+            ['laura.chaudet@hotmail.com',     'Laura CHAUDET',         'dent',  'Dr Thibault ANDEOL', 'Obiou5037'],
+            ['julie@delbar.fr',               'Julie DELBAR',          'dent',  'Dr Robin BASSET',    'Obiou6128'],
+            ['cloclotempesta@gmail.com',      'Chloé DIAFERIA',        'dent',  'Dr Thomas MEIER',    'Obiou4216'],
+            ['chgeeraert@gmail.com',          'Christel GIODDA',       'dent',  'Dr Agathe MERINDOL', 'Obiou9384'],
+            ['audreylambert.b@gmail.com',     'Audrey LAMBERT',        'dent',  'Magalie LASTELLA',   'Obiou1572'],
+            ['veronique.larsen@laposte.net',  'Véronique LARSEN',      'admin', 'Magalie LASTELLA',   'Obiou8063'],
+            ['julopes@hotmail.fr',            'Julie LOPES',           'admin', 'Magalie LASTELLA',   'Obiou3719'],
+            ['taoutaoulinda@gmail.com',       'Linda MAKHLOUCHE',      'dent',  'Dr Agathe MERINDOL', 'Obiou6842'],
+            ['echelard.e@gmail.com',          'Elisa MARCHISIO',       'admin', 'Magalie LASTELLA',   'Obiou4591'],
+            ['lauriemasnada@hotmail.com',     'Laure MASNADA',         'dent',  'Dr Robin BASSET',    'Obiou2376'],
+            ['fmazzilli9@icloud.com',         'Fiona MAZZILLI',        'dent',  'Dr Thomas MEIER',    'Obiou7051'],
+            ['severine.de-palma@orange.fr',   'Severine MULERO',       'admin', 'Magalie LASTELLA',   'Obiou5284'],
+            ['cristianoanea@yahoo.com',       'Cristian OANEA',        'dent',  'Dr Thibault ANDEOL', 'Obiou9617'],
+            ['palamuso.marine91@gmail.com',   'Marine PALAMUSO',       'dent',  'Dr Robin BASSET',    'Obiou3462'],
+            ['melissa.ptrtp@gmail.com',       'Melissa PATIR',         'admin', 'Magalie LASTELLA',   'Obiou8190'],
+            ['lolprost@gmail.com',            'Laurence PROST',        'dent',  'Dr Robin BASSET',    'Obiou5743'],
+            ['claudiarivasr85@gmail.com',     'Claudia RIVAS',         'dent',  'Dr Thibault ANDEOL', 'Obiou2905'],
+            ['charlotterocahague@yahoo.fr',   'Charlotte ROCA-HAGUE',  'dent',  'Dr Thibault ANDEOL', 'Obiou6831'],
+            ['sarasara38400@gmail.com',       'Sara ROCCHI',           'dent',  'Dr Agathe MERINDOL', 'Obiou4057'],
+            ['sarahpatu@hotmail.fr',          'Sarah SAUMON',          'dent',  'Magalie LASTELLA',   'Obiou7629'],
+            ['trapieremma@outlook.fr',        'Emma TRAPIER',          'dent',  'Dr Thomas MEIER',    'Obiou1843'],
+            ['clara.vazm@outlook.fr',         'Clara VAZ MARQUES',     'admin', 'Magalie LASTELLA',   'Obiou5076'],
+            ['berra.gyorur@gmail.com',        'Berra YORUR',           'dent',  'Dr Thomas MEIER',    'Obiou3598'],
+        ];
+
+        $created = 0;
+        $skipped = 0;
+        foreach ($employees as [$email, $name, $posKey, $managerName, $password]) {
+            $position = $posKey === 'admin' ? Positions::ADMIN_ASSISTANT : Positions::DENTAL_ASSISTANT;
+            $manager = $managerName === 'Magalie LASTELLA'
+                ? $magalie
+                : ($dentistByName[$managerName] ?? null);
+
+            if (! $manager) {
+                $this->command->warn("  Manager introuvable pour {$name} : {$managerName}");
+                $skipped++;
+                continue;
+            }
+
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $name,
+                    'password' => Hash::make($password),
+                    'role' => User::ROLE_EMPLOYEE,
+                    'position' => $position,
+                    'department' => $posKey === 'admin' ? 'Administratif' : 'Soins',
+                    'manager_id' => $manager->id,
+                    'must_change_password' => true,
+                ]
+            );
+
+            if ($user->wasRecentlyCreated) {
+                $created++;
+            } else {
+                $skipped++;
+            }
+        }
+
+        //
+        // 4) Nettoyage des comptes de démonstration.
+        //
+        $demoEmails = [
+            'directrice@cabinet.fr',
+            'dentiste@cabinet.fr',
+            'amelie.assistante@cabinet.fr',
+            'karim.assistant@cabinet.fr',
+            'sophie.admin@cabinet.fr',
+            'demo@smashyou.fr',
+        ];
+        $deleted = User::whereIn('email', $demoEmails)->delete();
+
+        $this->command->info("TeamSeeder terminé :");
+        $this->command->info("  • 1 directrice · 4 dentistes · {$created} salarié(e)s créé(e)s (" . ($skipped ? $skipped . ' existait(ent) déjà' : 'tous nouveaux') . ")");
+        if ($deleted > 0) {
+            $this->command->info("  • {$deleted} compte(s) de démo supprimé(s)");
+        }
+    }
+}
