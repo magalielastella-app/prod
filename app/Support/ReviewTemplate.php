@@ -34,8 +34,13 @@ class ReviewTemplate
     public static function keyForPosition(?string $position): string
     {
         return match ($position) {
-            Positions::DENTAL_ASSISTANT => AssistantTemplate::KEY,
-            Positions::ADMIN_ASSISTANT => AdminAssistantTemplate::KEY,
+            Positions::DENTAL_ASSISTANT,
+            Positions::CLINICAL_REFERENT,
+            Positions::STERILIZATION_REFERENT => AssistantTemplate::KEY,
+
+            Positions::ADMIN_ASSISTANT,
+            Positions::ADMIN_REFERENT => AdminAssistantTemplate::KEY,
+
             Positions::OPERATIONS_DIRECTOR => DirectriceTemplate::KEY,
             Positions::DENTIST => DentisteTemplate::KEY,
             default => self::DEFAULT,

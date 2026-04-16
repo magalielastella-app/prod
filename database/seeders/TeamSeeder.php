@@ -78,14 +78,14 @@ class TeamSeeder extends Seeder
             ['julie@delbar.fr',               'Julie DELBAR',          'dent',  'Dr Robin BASSET',    'Obiou6128'],
             ['cloclotempesta@gmail.com',      'Chloé DIAFERIA',        'dent',  'Dr Thomas MEIER',    'Obiou4216'],
             ['chgeeraert@gmail.com',          'Christel GIODDA',       'dent',  'Dr Agathe MERINDOL', 'Obiou9384'],
-            ['audreylambert.b@gmail.com',     'Audrey LAMBERT',        'dent',  'Magalie LASTELLA',   'Obiou1572'],
+            ['audreylambert.b@gmail.com',     'Audrey LAMBERT',        'ref_clinique', 'Magalie LASTELLA',   'Obiou1572'],
             ['veronique.larsen@laposte.net',  'Véronique LARSEN',      'admin', 'Magalie LASTELLA',   'Obiou8063'],
             ['julopes@hotmail.fr',            'Julie LOPES',           'admin', 'Magalie LASTELLA',   'Obiou3719'],
             ['taoutaoulinda@gmail.com',       'Linda MAKHLOUCHE',      'dent',  'Dr Agathe MERINDOL', 'Obiou6842'],
             ['echelard.e@gmail.com',          'Elisa MARCHISIO',       'admin', 'Magalie LASTELLA',   'Obiou4591'],
             ['lauriemasnada@hotmail.com',     'Laure MASNADA',         'dent',  'Dr Robin BASSET',    'Obiou2376'],
             ['fmazzilli9@icloud.com',         'Fiona MAZZILLI',        'dent',  'Dr Thomas MEIER',    'Obiou7051'],
-            ['severine.de-palma@orange.fr',   'Severine MULERO',       'admin', 'Magalie LASTELLA',   'Obiou5284'],
+            ['severine.de-palma@orange.fr',   'Severine MULERO',       'ref_admin', 'Magalie LASTELLA',   'Obiou5284'],
             ['cristianoanea@yahoo.com',       'Cristian OANEA',        'dent',  'Dr Thibault ANDEOL', 'Obiou9617'],
             ['palamuso.marine91@gmail.com',   'Marine PALAMUSO',       'dent',  'Dr Robin BASSET',    'Obiou3462'],
             ['melissa.ptrtp@gmail.com',       'Melissa PATIR',         'admin', 'Magalie LASTELLA',   'Obiou8190'],
@@ -93,7 +93,7 @@ class TeamSeeder extends Seeder
             ['claudiarivasr85@gmail.com',     'Claudia RIVAS',         'dent',  'Dr Thibault ANDEOL', 'Obiou2905'],
             ['charlotterocahague@yahoo.fr',   'Charlotte ROCA-HAGUE',  'dent',  'Dr Thibault ANDEOL', 'Obiou6831'],
             ['sarasara38400@gmail.com',       'Sara ROCCHI',           'dent',  'Dr Agathe MERINDOL', 'Obiou4057'],
-            ['sarahpatu@hotmail.fr',          'Sarah SAUMON',          'dent',  'Magalie LASTELLA',   'Obiou7629'],
+            ['sarahpatu@hotmail.fr',          'Sarah SAUMON',          'ref_steril', 'Magalie LASTELLA',   'Obiou7629'],
             ['trapieremma@outlook.fr',        'Emma TRAPIER',          'dent',  'Dr Thomas MEIER',    'Obiou1843'],
             ['clara.vazm@outlook.fr',         'Clara VAZ MARQUES',     'admin', 'Magalie LASTELLA',   'Obiou5076'],
             ['berra.gyorur@gmail.com',        'Berra YORUR',           'dent',  'Dr Thomas MEIER',    'Obiou3598'],
@@ -102,7 +102,14 @@ class TeamSeeder extends Seeder
         $created = 0;
         $skipped = 0;
         foreach ($employees as [$email, $name, $posKey, $managerName, $password]) {
-            $position = $posKey === 'admin' ? Positions::ADMIN_ASSISTANT : Positions::DENTAL_ASSISTANT;
+            $position = match ($posKey) {
+                'admin' => Positions::ADMIN_ASSISTANT,
+                'dent' => Positions::DENTAL_ASSISTANT,
+                'ref_clinique' => Positions::CLINICAL_REFERENT,
+                'ref_admin' => Positions::ADMIN_REFERENT,
+                'ref_steril' => Positions::STERILIZATION_REFERENT,
+                default => Positions::DENTAL_ASSISTANT,
+            };
             $manager = $managerName === 'Magalie LASTELLA'
                 ? $magalie
                 : ($dentistByName[$managerName] ?? null);
