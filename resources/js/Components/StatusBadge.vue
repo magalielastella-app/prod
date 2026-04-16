@@ -4,15 +4,15 @@ defineProps({
     cls: { type: String, default: 'ok' }, // ok | warn | danger | info
 });
 const colors = {
-    ok: 'bg-emerald-100 text-emerald-800 ring-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200 dark:ring-emerald-700/40',
-    warn: 'bg-amber-100 text-amber-800 ring-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-700/40',
-    danger: 'bg-red-100 text-red-800 ring-red-200 dark:bg-red-900/40 dark:text-red-200 dark:ring-red-700/40',
-    info: 'bg-sky-100 text-sky-800 ring-sky-200 dark:bg-sky-900/40 dark:text-sky-200 dark:ring-sky-700/40',
+    ok: 'bg-brand-mint text-emerald-800 ring-emerald-200/60 dark:bg-emerald-900/40 dark:text-emerald-200 dark:ring-emerald-700/40',
+    warn: 'bg-brand-peach text-orange-800 ring-orange-200/60 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-700/40',
+    danger: 'bg-brand-rose text-pink-800 ring-pink-200/60 dark:bg-red-900/40 dark:text-red-200 dark:ring-red-700/40',
+    info: 'bg-brand-sky text-sky-800 ring-sky-200/60 dark:bg-sky-900/40 dark:text-sky-200 dark:ring-sky-700/40',
 };
 const dotColors = {
     ok: 'bg-emerald-500',
-    warn: 'bg-amber-500 animate-soft-pulse',
-    danger: 'bg-red-500 animate-soft-pulse',
+    warn: 'bg-orange-500 animate-soft-pulse',
+    danger: 'bg-pink-500 animate-soft-pulse',
     info: 'bg-sky-500',
 };
 </script>

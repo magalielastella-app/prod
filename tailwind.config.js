@@ -15,39 +15,46 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
-            // Palette Cabinet Dentaire : teal principal + accents chauds/froids
+            // Palette pastelle — Cabinet Dentaire de l'Obiou.
+            // Le teal du logo reste l'identité ; les fonds, statuts et
+            // tuiles passent en pastel doux pour un rendu apaisant.
             colors: {
                 brand: {
-                    // Teal = couleur principale (charte Cabinet de l'Obiou)
-                    primary: '#115E59',
-                    'primary-dark': '#0F4C47',   // fond du logo
-                    'primary-light': '#14B8A6',
+                    // Teal — actions, liens, boutons primaires
+                    primary: '#14B8A6',
+                    'primary-dark': '#0F766E',
+                    'primary-light': '#5EEAD4',
+                    'primary-bg': '#0F4C47',     // fond logo (sombre, conservé)
 
-                    // Accents — chaque section/tuile a sa couleur
-                    coral: '#FB7185',
-                    violet: '#8B5CF6',
-                    amber: '#F59E0B',
-                    sky: '#38BDF8',
-                    rose: '#F43F5E',
-                    emerald: '#10B981',
+                    // Pastels d'accent — pour cartes, status, sections
+                    mint: '#A7F3D0',
+                    peach: '#FED7AA',
+                    rose: '#FBCFE8',
+                    lavender: '#E9D5FF',
+                    butter: '#FEF3C7',
+                    sky: '#BAE6FD',
+                    coral: '#FECACA',
+                    ice: '#CFFAFE',
 
-                    // Neutres clairs
-                    cream: '#F1F5F9',
-                    beige: '#E2E8F0',
-                    tan: '#94A3B8',
-                    tertiary: '#ECFEFF',
-                    dark: '#0F172A',
+                    // Neutres très clairs
+                    cream: '#FAFAF9',            // fond général
+                    beige: '#F1F5F9',            // séparateurs doux
+                    tan: '#CBD5E1',              // bordures contrastées
+                    tertiary: '#F0FDFA',         // teinte très douce mint
+                    dark: '#0F172A',             // texte principal
                 },
             },
             backgroundImage: {
-                'brand-gradient': 'linear-gradient(135deg, #0F766E 0%, #14B8A6 50%, #38BDF8 100%)',
-                'brand-soft': 'linear-gradient(135deg, #ECFEFF 0%, #F1F5F9 100%)',
-                'hero-splash': 'radial-gradient(ellipse at top left, rgba(20,184,166,0.15), transparent 60%), radial-gradient(ellipse at bottom right, rgba(251,113,133,0.12), transparent 60%)',
+                // Gradient principal — pastel mint → ciel → lavande, gardant un peu
+                // de teal pour la signature visuelle. Texte foncé recommandé.
+                'brand-gradient': 'linear-gradient(135deg, #5EEAD4 0%, #BAE6FD 50%, #DDD6FE 100%)',
+                'brand-soft': 'linear-gradient(135deg, #F0FDFA 0%, #FAFAF9 100%)',
+                'hero-splash': 'radial-gradient(ellipse at top left, rgba(94,234,212,0.25), transparent 60%), radial-gradient(ellipse at bottom right, rgba(251,207,232,0.22), transparent 60%)',
             },
             boxShadow: {
-                'soft': '0 4px 20px -4px rgba(15, 23, 42, 0.08)',
-                'glow-primary': '0 0 0 4px rgba(20, 184, 166, 0.15)',
-                'glow-amber': '0 0 0 4px rgba(245, 158, 11, 0.15)',
+                'soft': '0 4px 20px -4px rgba(15, 23, 42, 0.06)',
+                'glow-primary': '0 0 0 4px rgba(94, 234, 212, 0.20)',
+                'glow-amber': '0 0 0 4px rgba(254, 215, 170, 0.30)',
             },
             animation: {
                 'soft-pulse': 'soft-pulse 2.5s ease-in-out infinite',

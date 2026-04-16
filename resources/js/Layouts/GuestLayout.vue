@@ -5,10 +5,11 @@ import { Link } from '@inertiajs/vue3';
 
 <template>
     <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-brand-cream px-4 py-10">
-        <!-- Taches colorées d'arrière-plan, très douces -->
+        <!-- Taches pastel d'arrière-plan, très douces -->
         <div class="pointer-events-none absolute inset-0">
-            <div class="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-brand-primary-light/20 blur-3xl" />
-            <div class="absolute bottom-0 -right-20 h-80 w-80 rounded-full bg-brand-sky/20 blur-3xl" />
+            <div class="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-brand-mint/50 blur-3xl" />
+            <div class="absolute bottom-0 -right-20 h-80 w-80 rounded-full bg-brand-rose/40 blur-3xl" />
+            <div class="absolute top-1/3 right-0 h-72 w-72 rounded-full bg-brand-lavender/30 blur-3xl" />
         </div>
 
         <div class="relative">

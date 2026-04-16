@@ -21,54 +21,54 @@ const statusColor = (status) => {
     return 'warn';
 };
 
-// Chaque carte a sa couleur et son icône pour un rendu plus vivant.
+// Chaque carte a son fond pastel et son icône pour un rendu doux et lisible.
 const statCards = computed(() => [
     {
         label: `Entretiens ${props.currentYear}`,
         value: props.stats.total,
-        color: 'from-brand-primary to-brand-primary-light',
-        iconColor: 'text-brand-primary',
-        bgIcon: 'bg-brand-tertiary',
+        bgCard: 'bg-brand-tertiary',
+        bgIcon: 'bg-white/70',
+        iconColor: 'text-teal-700',
         icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
     },
     {
         label: 'À préparer',
         value: props.stats.to_prepare,
-        color: 'from-amber-500 to-amber-400',
-        iconColor: 'text-amber-600',
-        bgIcon: 'bg-amber-100',
+        bgCard: 'bg-brand-peach',
+        bgIcon: 'bg-white/70',
+        iconColor: 'text-orange-700',
         icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
     },
     {
         label: 'À traiter manager',
         value: props.stats.to_review,
-        color: 'from-brand-violet to-indigo-400',
-        iconColor: 'text-brand-violet',
-        bgIcon: 'bg-violet-100',
+        bgCard: 'bg-brand-lavender',
+        bgIcon: 'bg-white/70',
+        iconColor: 'text-violet-700',
         icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
     },
     {
         label: 'À signer',
         value: props.stats.to_sign,
-        color: 'from-brand-coral to-brand-rose',
-        iconColor: 'text-brand-rose',
-        bgIcon: 'bg-rose-100',
+        bgCard: 'bg-brand-rose',
+        bgIcon: 'bg-white/70',
+        iconColor: 'text-pink-700',
         icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
     },
     {
         label: `Signés ${props.currentYear}`,
         value: props.stats.signed,
-        color: 'from-emerald-500 to-brand-primary-light',
-        iconColor: 'text-emerald-600',
-        bgIcon: 'bg-emerald-100',
+        bgCard: 'bg-brand-mint',
+        bgIcon: 'bg-white/70',
+        iconColor: 'text-emerald-700',
         icon: 'M5 13l4 4L19 7',
     },
     {
         label: 'Équipe',
         value: props.stats.team,
-        color: 'from-brand-sky to-cyan-400',
-        iconColor: 'text-brand-sky',
-        bgIcon: 'bg-sky-100',
+        bgCard: 'bg-brand-sky',
+        bgIcon: 'bg-white/70',
+        iconColor: 'text-sky-700',
         icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
         condition: props.stats.team !== null,
     },
@@ -98,19 +98,19 @@ const visibleCards = computed(() => statCards.value.filter((c) => c.condition !=
         <div class="py-8">
             <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
 
-                <!-- Bannière colorée -->
-                <div class="overflow-hidden rounded-2xl bg-brand-gradient p-6 text-white shadow-soft animate-fade-in">
+                <!-- Bannière pastel -->
+                <div class="overflow-hidden rounded-2xl bg-brand-gradient p-6 text-slate-800 shadow-soft animate-fade-in">
                     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                         <div>
                             <h3 class="text-lg font-semibold">Campagne {{ currentYear }}</h3>
-                            <p class="mt-1 text-sm text-white/90">
+                            <p class="mt-1 text-sm text-slate-700">
                                 {{ stats.total }} entretien{{ stats.total > 1 ? 's' : '' }} au total ·
                                 {{ stats.signed }} déjà signé{{ stats.signed > 1 ? 's' : '' }} ·
                                 {{ stats.to_sign }} prêt{{ stats.to_sign > 1 ? 's' : '' }} à signer
                             </p>
                         </div>
                         <Link :href="route('reviews.index')"
-                            class="inline-flex items-center gap-2 rounded-lg bg-white/20 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/30 hover:shadow-lg">
+                            class="inline-flex items-center gap-2 rounded-lg bg-white/70 px-4 py-2 text-sm font-semibold text-brand-primary-dark ring-1 ring-white/60 transition hover:bg-white hover:shadow-md">
                             Aller aux entretiens
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -119,16 +119,14 @@ const visibleCards = computed(() => statCards.value.filter((c) => c.condition !=
                     </div>
                 </div>
 
-                <!-- Statistiques -->
+                <!-- Statistiques (cartes pastel pleines) -->
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                     <div v-for="(c, i) in visibleCards" :key="i"
-                        class="group relative overflow-hidden rounded-xl bg-white p-4 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:bg-gray-800">
-                        <!-- Filet coloré à gauche -->
-                        <div :class="['absolute inset-y-0 left-0 w-1 bg-gradient-to-b', c.color]" />
+                        :class="['group relative overflow-hidden rounded-xl p-4 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md', c.bgCard]">
                         <div class="flex items-start justify-between">
                             <div>
-                                <div class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ c.label }}</div>
-                                <div class="mt-1 text-3xl font-bold text-gray-900 dark:text-gray-100">{{ c.value }}</div>
+                                <div class="text-xs font-semibold uppercase tracking-wider text-slate-700/80">{{ c.label }}</div>
+                                <div class="mt-1 text-3xl font-bold text-slate-900">{{ c.value }}</div>
                             </div>
                             <div :class="['rounded-lg p-2', c.bgIcon]">
                                 <svg class="h-5 w-5" :class="c.iconColor" fill="none" viewBox="0 0 24 24"
