@@ -72,10 +72,137 @@ class DashboardController extends Controller
                 'manager' => $r->manager?->only(['id', 'name']),
             ]);
 
+        // Mes actions à effectuer maintenant : entretiens où l'utilisateur
+        // doit agir (préparer son auto-éval, traiter en tant que manager,
+        // ou signer). Triées par urgence.
+        $myActions = $this->buildMyActions($user);
+
         return Inertia::render('Dashboard', [
             'stats' => $stats,
             'upcoming' => $upcoming,
+            'myActions' => $myActions,
             'currentYear' => $currentYear,
         ]);
+    }
+
+    /** @return list<array<string,mixed>> */
+    private function buildMyActions(User $user): array
+    {
+        $actions = [];
+
+        // 1) Mes propres entretiens (en tant que salarié)
+        $ownReviews = AnnualReview::with('manager:id,name')
+            ->where('employee_id', $user->id)
+            ->orderByDesc('year')
+            ->get();
+
+        foreach ($ownReviews as $r) {
+            $action = $this->buildOwnActionFromReview($r);
+            if ($action) {
+                $actions[] = $action;
+            }
+        }
+
+        // 2) Entretiens que je conduis (en tant que manager)
+        if ($user->isManager() || $user->isAdmin()) {
+            $managedReviews = AnnualReview::with('employee:id,name,position')
+                ->where('manager_id', $user->id)
+                ->orderByDesc('year')
+                ->get();
+
+            foreach ($managedReviews as $r) {
+                $action = $this->buildManagerActionFromReview($r);
+                if ($action) {
+                    $actions[] = $action;
+                }
+            }
+        }
+
+        // Tri : les actions urgentes (à préparer / à traiter / à signer) en premier
+        usort($actions, fn ($a, $b) => ($b['priority'] ?? 0) <=> ($a['priority'] ?? 0));
+
+        return $actions;
+    }
+
+    private function buildOwnActionFromReview(AnnualReview $r): ?array
+    {
+        $base = [
+            'review_id' => $r->id,
+            'year' => $r->year,
+            'role' => 'employee',
+            'manager_name' => $r->manager?->name,
+        ];
+
+        return match ($r->status) {
+            AnnualReview::STATUS_SCHEDULED => array_merge($base, [
+                'title' => "Préparer mon entretien {$r->year}",
+                'subtitle' => 'Vous pouvez commencer votre auto-évaluation.',
+                'cta' => 'Commencer la préparation',
+                'tone' => 'primary',
+                'priority' => 90,
+            ]),
+            AnnualReview::STATUS_EMPLOYEE_DRAFT => array_merge($base, [
+                'title' => "Continuer mon entretien {$r->year}",
+                'subtitle' => "Brouillon en cours — pensez à l'envoyer au manager quand c'est prêt.",
+                'cta' => 'Reprendre la préparation',
+                'tone' => 'primary',
+                'priority' => 95,
+            ]),
+            AnnualReview::STATUS_READY_FOR_MANAGER, AnnualReview::STATUS_MANAGER_DRAFT => array_merge($base, [
+                'title' => "Mon entretien {$r->year} est entre les mains du manager",
+                'subtitle' => 'Vous pourrez signer dès qu\'il aura finalisé sa partie.',
+                'cta' => 'Voir mon entretien',
+                'tone' => 'info',
+                'priority' => 30,
+            ]),
+            AnnualReview::STATUS_COMPLETED => $r->employee_signed_at
+                ? null
+                : array_merge($base, [
+                    'title' => "Signer mon entretien {$r->year}",
+                    'subtitle' => 'Le manager a finalisé — votre signature est attendue.',
+                    'cta' => 'Signer maintenant',
+                    'tone' => 'urgent',
+                    'priority' => 100,
+                ]),
+            default => null,
+        };
+    }
+
+    private function buildManagerActionFromReview(AnnualReview $r): ?array
+    {
+        $base = [
+            'review_id' => $r->id,
+            'year' => $r->year,
+            'role' => 'manager',
+            'employee_name' => $r->employee?->name,
+            'employee_position' => $r->employee?->position,
+        ];
+
+        return match ($r->status) {
+            AnnualReview::STATUS_READY_FOR_MANAGER => array_merge($base, [
+                'title' => "Conduire l'entretien de {$r->employee?->name}",
+                'subtitle' => "L'auto-évaluation est prête, à vous de compléter votre partie.",
+                'cta' => 'Ouvrir et compléter',
+                'tone' => 'primary',
+                'priority' => 90,
+            ]),
+            AnnualReview::STATUS_MANAGER_DRAFT => array_merge($base, [
+                'title' => "Continuer l'entretien de {$r->employee?->name}",
+                'subtitle' => 'Brouillon en cours — pensez à finaliser pour signature.',
+                'cta' => 'Reprendre',
+                'tone' => 'primary',
+                'priority' => 85,
+            ]),
+            AnnualReview::STATUS_COMPLETED => $r->manager_signed_at
+                ? null
+                : array_merge($base, [
+                    'title' => "Signer l'entretien de {$r->employee?->name}",
+                    'subtitle' => 'En attente de votre signature.',
+                    'cta' => 'Signer maintenant',
+                    'tone' => 'urgent',
+                    'priority' => 100,
+                ]),
+            default => null,
+        };
     }
 }
