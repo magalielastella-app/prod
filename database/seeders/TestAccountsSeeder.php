@@ -2,23 +2,23 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnnualReview;
 use App\Models\User;
 use App\Support\Positions;
+use App\Support\ReviewTemplate;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Crée un compte de test par poste métier pour permettre à la directrice
- * de vérifier le comportement de l'application sous chaque profil.
+ * Crée un compte de test par poste métier + un entretien planifié
+ * pour chaque compte, pour permettre à la directrice de vérifier
+ * le flux complet (auto-éval, manager, signature, PDF).
  *
  * Tous les comptes ont le même mot de passe simple « Test1234 » et
  * must_change_password = false (pas de redirection forcée).
  *
  * Exécution :  php artisan db:seed --class=TestAccountsSeeder --force
- *
- * Pour supprimer les comptes de test plus tard, supprimer-les depuis
- * l'onglet "Équipe" ou exécuter :
- *   php artisan tinker --execute="App\Models\User::where('email', 'like', 'test.%@cabinetdentaireobiou.fr')->delete()"
  */
 class TestAccountsSeeder extends Seeder
 {
@@ -29,6 +29,9 @@ class TestAccountsSeeder extends Seeder
 
         $password = Hash::make('Test1234');
 
+        //
+        // 1) Créer les 7 comptes test (1 par poste)
+        //
         $testAccounts = [
             [
                 'email' => 'test.directrice@cabinetdentaireobiou.fr',
@@ -89,6 +92,7 @@ class TestAccountsSeeder extends Seeder
         ];
 
         $created = 0;
+        $users = [];
         foreach ($testAccounts as $a) {
             $user = User::updateOrCreate(
                 ['email' => $a['email']],
@@ -102,12 +106,53 @@ class TestAccountsSeeder extends Seeder
                     'must_change_password' => false,
                 ]
             );
+            $users[$a['email']] = $user;
             if ($user->wasRecentlyCreated) {
                 $created++;
             }
         }
 
+        //
+        // 2) Créer un entretien planifié pour chaque compte test.
+        //    Les 5 employés → manager = test.dentiste (celui qui conduit).
+        //    Le test.dentiste → manager = test.directrice (sa propre review).
+        //    La test.directrice → pas d'entretien (rien au-dessus d'elle).
+        //
+        $year = (int) Carbon::now()->year;
+        $testDentiste = $users['test.dentiste@cabinetdentaireobiou.fr'] ?? null;
+        $testDirectrice = $users['test.directrice@cabinetdentaireobiou.fr'] ?? null;
+
+        $entretiensAssignments = [
+            'test.assistante.dentaire@cabinetdentaireobiou.fr'      => $testDentiste,
+            'test.assistante.administrative@cabinetdentaireobiou.fr' => $testDirectrice,
+            'test.referente.clinique@cabinetdentaireobiou.fr'        => $testDentiste,
+            'test.referente.administrative@cabinetdentaireobiou.fr'  => $testDirectrice,
+            'test.referente.sterilisation@cabinetdentaireobiou.fr'   => $testDentiste,
+            'test.dentiste@cabinetdentaireobiou.fr'                  => $testDirectrice,
+        ];
+
+        $reviewsCreated = 0;
+        foreach ($entretiensAssignments as $email => $manager) {
+            $employee = $users[$email] ?? null;
+            if (! $employee || ! $manager || $employee->id === $manager->id) {
+                continue;
+            }
+            $review = AnnualReview::firstOrCreate(
+                ['employee_id' => $employee->id, 'year' => $year],
+                [
+                    'manager_id' => $manager->id,
+                    'scheduled_for' => Carbon::now()->addDays(7)->toDateString(),
+                    'status' => AnnualReview::STATUS_SCHEDULED,
+                    'template_key' => ReviewTemplate::keyForPosition($employee->position),
+                ]
+            );
+            if ($review->wasRecentlyCreated) {
+                $reviewsCreated++;
+            }
+        }
+
         $this->command->info($created . ' compte(s) de test créé(s) / ' . count($testAccounts) . ' au total.');
+        $this->command->info($reviewsCreated . ' entretien(s) de test planifié(s).');
         $this->command->info('Mot de passe commun : Test1234');
     }
 }
