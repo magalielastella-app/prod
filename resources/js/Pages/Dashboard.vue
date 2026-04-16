@@ -121,7 +121,7 @@ const visibleCards = computed(() => statCards.value.filter((c) => c.condition !=
                     Bonjour {{ userName }} 👋
                 </h2>
                 <span class="text-sm text-gray-600 dark:text-gray-400">
-                    Campagne des entretiens {{ currentYear }}
+                    Campagne d'entretiens professionnels annuels et de formations {{ currentYear }}
                 </span>
             </div>
         </template>
@@ -188,7 +188,7 @@ const visibleCards = computed(() => statCards.value.filter((c) => c.condition !=
                 <div class="overflow-hidden rounded-2xl bg-brand-gradient p-6 text-slate-800 shadow-soft animate-fade-in">
                     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                         <div>
-                            <h3 class="text-lg font-semibold">Campagne {{ currentYear }}</h3>
+                            <h3 class="text-lg font-semibold">Campagne d'entretiens professionnels annuels et de formations {{ currentYear }}</h3>
                             <p class="mt-1 text-sm text-slate-700">
                                 {{ stats.total }} entretien{{ stats.total > 1 ? 's' : '' }} au total ·
                                 {{ stats.signed }} déjà signé{{ stats.signed > 1 ? 's' : '' }} ·
