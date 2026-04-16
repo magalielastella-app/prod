@@ -29,7 +29,10 @@ Route::middleware('auth')->group(function () {
     // ---------- Trames d'entretien (admin) ----------
     Route::get('/trames', [TemplateController::class, 'index'])->name('templates.index');
     Route::get('/trames/{key}', [TemplateController::class, 'edit'])->name('templates.edit');
-    Route::put('/trames/{key}', [TemplateController::class, 'update'])->name('templates.update');
+    // POST plutôt que PUT : certains intermédiaires (proxy, CDN, proxy Render…)
+    // bloquent ou réécrivent les verbes PUT/PATCH, ce qui se traduit par un 405
+    // côté navigateur. POST est universellement accepté.
+    Route::post('/trames/{key}', [TemplateController::class, 'update'])->name('templates.update');
 
     // ---------- Équipe (admin) ----------
     Route::get('/equipe', [TeamController::class, 'index'])->name('team.index');

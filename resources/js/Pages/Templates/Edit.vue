@@ -21,7 +21,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('templates.update', props.template.key), {
+    form.post(route('templates.update', props.template.key), {
         preserveScroll: true,
     });
 };

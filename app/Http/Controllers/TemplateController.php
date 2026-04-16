@@ -44,7 +44,10 @@ class TemplateController extends Controller
     {
         $this->authorizeAdmin($request);
 
-        $data = $request->validate([
+        // Validation de la structure (les champs auxiliaires comme rows /
+        // hint / evaluation_options / options ne sont pas listés mais ne
+        // sont pas filtrés non plus : on stocke l'input brut juste après).
+        $request->validate([
             'label' => ['required', 'string', 'max:255'],
             'header' => ['nullable', 'array'],
             'header.*.key' => ['required', 'string'],
@@ -59,17 +62,21 @@ class TemplateController extends Controller
             'sections.*.fields.*.owner' => ['nullable', 'string'],
         ]);
 
+        $label = $request->input('label');
+        $header = $request->input('header', []);
+        $sections = $request->input('sections', []);
+
         ReviewTemplateModel::updateOrCreate(
             ['key' => $key],
             [
-                'label' => $data['label'],
-                'header' => $data['header'] ?? [],
-                'sections' => $data['sections'],
+                'label' => $label,
+                'header' => $header,
+                'sections' => $sections,
             ]
         );
 
         return redirect()->route('templates.index')
-            ->with('success', 'Trame « ' . $data['label'] . ' » mise à jour');
+            ->with('success', 'Trame « ' . $label . ' » mise à jour');
     }
 
     private function authorizeAdmin(Request $request): void
