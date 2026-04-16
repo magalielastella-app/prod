@@ -29,10 +29,10 @@ const emojiSizes = {
 
 <template>
     <div :class="['inline-flex items-stretch overflow-hidden rounded-lg bg-brand-primary-bg text-white shadow-sm ring-1 ring-white/10', sizes[size] || sizes.md]">
-        <!-- Emoji professionnel (presse-papiers) -->
+        <!-- Emoji professionnel (cible / objectifs) -->
         <div class="grid aspect-square place-items-center">
             <span :class="['leading-none', emojiSizes[size] || emojiSizes.md]" aria-hidden="true">
-                📋
+                🎯
             </span>
         </div>
 
