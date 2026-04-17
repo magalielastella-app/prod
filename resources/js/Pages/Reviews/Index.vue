@@ -19,7 +19,7 @@ const props = defineProps({
 
 const page = usePage();
 
-const blankRow = () => ({ employee_id: '', manager_id: '', scheduled_for: '' });
+const blankRow = () => ({ employee_id: '', manager_id: '', co_manager_id: '', scheduled_for: '' });
 
 const form = useForm({
     year: props.defaultYear,
@@ -98,7 +98,7 @@ const destroy = (id) => {
                             <div v-for="(row, i) in form.assignments" :key="i"
                                 class="grid grid-cols-1 gap-3 rounded border border-gray-200 p-3 sm:grid-cols-12 dark:border-gray-700">
                                 <!-- Salarié -->
-                                <div :class="can.pickManager ? 'sm:col-span-5' : 'sm:col-span-7'">
+                                <div :class="can.pickManager ? 'sm:col-span-3' : 'sm:col-span-7'">
                                     <InputLabel :for="`employee_${i}`" value="Salarié" />
                                     <select :id="`employee_${i}`" v-model="row.employee_id" required
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
@@ -110,9 +110,9 @@ const destroy = (id) => {
                                     <InputError class="mt-2" :message="form.errors[`assignments.${i}.employee_id`]" />
                                 </div>
 
-                                <!-- Manager (admin seulement) -->
-                                <div v-if="can.pickManager" class="sm:col-span-4">
-                                    <InputLabel :for="`manager_${i}`" value="Manager qui conduira l'entretien" />
+                                <!-- Qui réalise l'entretien (admin seulement) -->
+                                <div v-if="can.pickManager" class="sm:col-span-3">
+                                    <InputLabel :for="`manager_${i}`" value="Qui réalise l'entretien" />
                                     <select :id="`manager_${i}`" v-model="row.manager_id"
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
                                         <option value="">— moi-même —</option>
@@ -122,6 +122,20 @@ const destroy = (id) => {
                                         </option>
                                     </select>
                                     <InputError class="mt-2" :message="form.errors[`assignments.${i}.manager_id`]" />
+                                </div>
+
+                                <!-- Qui assiste à l'entretien (admin seulement, optionnel) -->
+                                <div v-if="can.pickManager" class="sm:col-span-3">
+                                    <InputLabel :for="`co_manager_${i}`" value="Qui assiste à l'entretien" />
+                                    <select :id="`co_manager_${i}`" v-model="row.co_manager_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                        <option value="">— personne —</option>
+                                        <option v-for="m in potentialManagers" :key="m.id" :value="m.id"
+                                            :disabled="m.id === row.employee_id || m.id === row.manager_id">
+                                            {{ m.name }}<span v-if="m.position"> — {{ m.position }}</span>
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="form.errors[`assignments.${i}.co_manager_id`]" />
                                 </div>
 
                                 <!-- Date -->
@@ -171,7 +185,8 @@ const destroy = (id) => {
                             <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                                 <th class="px-4 py-3">Année</th>
                                 <th class="px-4 py-3">Salarié</th>
-                                <th class="px-4 py-3">Manager</th>
+                                <th class="px-4 py-3">Qui réalise l'entretien</th>
+                                <th class="px-4 py-3">Qui assiste</th>
                                 <th class="px-4 py-3">Date</th>
                                 <th class="px-4 py-3">Statut</th>
                                 <th class="px-4 py-3 text-right">Actions</th>
@@ -185,6 +200,7 @@ const destroy = (id) => {
                                     <div class="text-xs text-gray-500">{{ r.employee?.position }}</div>
                                 </td>
                                 <td class="px-4 py-3">{{ r.manager?.name || '—' }}</td>
+                                <td class="px-4 py-3 text-gray-600">{{ r.co_manager?.name || '—' }}</td>
                                 <td class="px-4 py-3">{{ r.scheduled_for || '—' }}</td>
                                 <td class="px-4 py-3">
                                     <StatusBadge :label="r.status_label" :cls="statusColor(r.status)" />
@@ -201,7 +217,7 @@ const destroy = (id) => {
                                 </td>
                             </tr>
                             <tr v-if="!reviews.length">
-                                <td colspan="6" class="px-4 py-10 text-center text-sm italic text-gray-500">
+                                <td colspan="7" class="px-4 py-10 text-center text-sm italic text-gray-500">
                                     Aucun entretien pour le moment.
                                 </td>
                             </tr>

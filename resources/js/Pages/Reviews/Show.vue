@@ -188,6 +188,8 @@ const inputCls = 'block w-full rounded border-gray-300 text-sm shadow-sm focus:b
                         <div><span class="font-medium">Poste :</span> {{ review.employee?.position || '—' }}</div>
                         <div><span class="font-medium">Date d'embauche :</span> {{ review.employee?.hired_on || '—' }}</div>
                         <div><span class="font-medium">Date d'entretien :</span> {{ review.scheduled_for || '—' }}</div>
+                        <div><span class="font-medium">Qui réalise l'entretien :</span> {{ review.manager?.name || '—' }}</div>
+                        <div v-if="review.co_manager"><span class="font-medium">Qui assiste :</span> {{ review.co_manager?.name }}</div>
                     </div>
 
                     <div v-if="template.header?.length" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -27,6 +27,7 @@ class AnnualReview extends Model
     protected $fillable = [
         'employee_id',
         'manager_id',
+        'co_manager_id',
         'year',
         'scheduled_for',
         'status',
@@ -59,6 +60,12 @@ class AnnualReview extends Model
     public function manager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    /** Co-évaluateur (personne qui assiste à l'entretien) — informatif. */
+    public function coManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'co_manager_id');
     }
 
     public function statusLabel(): string

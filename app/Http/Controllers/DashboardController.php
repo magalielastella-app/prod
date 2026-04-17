@@ -22,6 +22,7 @@ class DashboardController extends Controller
         } elseif ($user->isManager()) {
             $baseQuery->where(function ($q) use ($user) {
                 $q->where('manager_id', $user->id)
+                  ->orWhere('co_manager_id', $user->id)
                   ->orWhere('employee_id', $user->id);
             });
         } else {

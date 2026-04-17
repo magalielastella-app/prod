@@ -19,7 +19,11 @@ class AnnualReviewController extends Controller
     {
         $user = $request->user();
 
-        $query = AnnualReview::with(['employee:id,name,email,position,department', 'manager:id,name'])
+        $query = AnnualReview::with([
+                'employee:id,name,email,position,department',
+                'manager:id,name',
+                'coManager:id,name',
+            ])
             ->orderByDesc('year')
             ->orderBy('scheduled_for');
 
@@ -28,6 +32,7 @@ class AnnualReviewController extends Controller
         } elseif ($user->isManager()) {
             $query->where(function ($q) use ($user) {
                 $q->where('manager_id', $user->id)
+                  ->orWhere('co_manager_id', $user->id)
                   ->orWhere('employee_id', $user->id);
             });
         } else {
@@ -49,6 +54,10 @@ class AnnualReviewController extends Controller
             'manager' => $r->manager ? [
                 'id' => $r->manager->id,
                 'name' => $r->manager->name,
+            ] : null,
+            'co_manager' => $r->coManager ? [
+                'id' => $r->coManager->id,
+                'name' => $r->coManager->name,
             ] : null,
             'signed' => $r->isSigned(),
             'is_mine' => $r->employee_id === $user->id,
@@ -95,6 +104,7 @@ class AnnualReviewController extends Controller
             'assignments' => ['required', 'array', 'min:1'],
             'assignments.*.employee_id' => ['required', 'exists:users,id'],
             'assignments.*.manager_id' => ['nullable', 'exists:users,id'],
+            'assignments.*.co_manager_id' => ['nullable', 'exists:users,id'],
             'assignments.*.scheduled_for' => ['nullable', 'date'],
         ]);
 
@@ -137,9 +147,22 @@ class AnnualReviewController extends Controller
                 continue;
             }
 
+            // Co-évaluateur (optionnel, admin uniquement) — informatif + visibilité.
+            $coManagerId = null;
+            if ($currentUser->isAdmin() && ! empty($row['co_manager_id'])) {
+                $coManager = User::find($row['co_manager_id']);
+                if ($coManager
+                    && in_array($coManager->role, [User::ROLE_MANAGER, User::ROLE_ADMIN], true)
+                    && $coManager->id !== $employee->id
+                    && $coManager->id !== $managerId) {
+                    $coManagerId = $coManager->id;
+                }
+            }
+
             AnnualReview::create([
                 'employee_id' => $employee->id,
                 'manager_id' => $managerId,
+                'co_manager_id' => $coManagerId,
                 'year' => $data['year'],
                 'scheduled_for' => $row['scheduled_for'] ?? null,
                 'status' => AnnualReview::STATUS_SCHEDULED,
@@ -162,6 +185,7 @@ class AnnualReviewController extends Controller
         $review->load([
             'employee:id,name,email,position,department,hired_on',
             'manager:id,name,email',
+            'coManager:id,name,email',
         ]);
 
         return Inertia::render('Reviews/Show', [
@@ -181,6 +205,7 @@ class AnnualReviewController extends Controller
         $review->load([
             'employee:id,name,email,position,department,hired_on',
             'manager:id,name,email',
+            'coManager:id,name,email',
         ]);
 
         return response()->view('reviews.print', [
@@ -200,6 +225,7 @@ class AnnualReviewController extends Controller
         $review->load([
             'employee:id,name,email,position,department,hired_on',
             'manager:id,name,email',
+            'coManager:id,name,email',
         ]);
 
         $filename = sprintf(
@@ -367,6 +393,11 @@ class AnnualReviewController extends Controller
                 'id' => $review->manager->id,
                 'name' => $review->manager->name,
                 'email' => $review->manager->email,
+            ] : null,
+            'co_manager' => $review->coManager ? [
+                'id' => $review->coManager->id,
+                'name' => $review->coManager->name,
+                'email' => $review->coManager->email,
             ] : null,
         ];
     }

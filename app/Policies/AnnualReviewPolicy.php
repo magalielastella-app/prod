@@ -18,7 +18,8 @@ class AnnualReviewPolicy
             return true;
         }
         return $review->employee_id === $user->id
-            || $review->manager_id === $user->id;
+            || $review->manager_id === $user->id
+            || $review->co_manager_id === $user->id;
     }
 
     public function create(User $user): bool

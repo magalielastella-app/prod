@@ -173,9 +173,15 @@ DE L'OBIOU</span>
         <td>{{ $fmt($review->scheduled_for) }}</td>
     </tr>
     <tr>
-        <th>Manager</th>
+        <th>Qui réalise l'entretien</th>
         <td colspan="3">{{ $review->manager?->name ?? '—' }}</td>
     </tr>
+    @if ($review->coManager)
+        <tr>
+            <th>Qui assiste à l'entretien</th>
+            <td colspan="3">{{ $review->coManager->name }}</td>
+        </tr>
+    @endif
     @foreach ($template['header'] ?? [] as $headerField)
         <tr>
             <th>{{ $headerField['label'] }}</th>
@@ -345,7 +351,7 @@ DE L'OBIOU</span>
             @endif
         </td>
         <td>
-            <div class="sig-who">Manager</div>
+            <div class="sig-who">Qui réalise l'entretien</div>
             <div>{{ $review->manager?->name ?? '—' }}</div>
             @if ($review->manager_signed_at)
                 <div class="sig-signed">Signé le {{ $fmtDT($review->manager_signed_at) }}</div>
@@ -354,6 +360,15 @@ DE L'OBIOU</span>
             @endif
         </td>
     </tr>
+    @if ($review->coManager)
+        <tr>
+            <td colspan="2" style="padding-top: 10px;">
+                <div class="sig-who">Qui assiste à l'entretien</div>
+                <div>{{ $review->coManager->name }}</div>
+                <div style="font-size: 8pt; color: #64748B; margin-top: 2px;">(présence pour trace, ne signe pas)</div>
+            </td>
+        </tr>
+    @endif
 </table>
 
 </body>

@@ -235,9 +235,15 @@ DE L'OBIOU</div>
             <td>{{ $formatDate($review->scheduled_for) }}</td>
         </tr>
         <tr>
-            <th>Manager</th>
+            <th>Qui réalise l'entretien</th>
             <td colspan="3">{{ $review->manager?->name ?? '—' }}</td>
         </tr>
+        @if ($review->coManager)
+            <tr>
+                <th>Qui assiste à l'entretien</th>
+                <td colspan="3">{{ $review->coManager->name }}</td>
+            </tr>
+        @endif
         @foreach ($template['header'] ?? [] as $headerField)
             <tr>
                 <th>{{ $headerField['label'] }}</th>
@@ -411,7 +417,7 @@ DE L'OBIOU</div>
             @endif
         </div>
         <div class="signature-box">
-            <div class="who">Manager</div>
+            <div class="who">Qui réalise l'entretien</div>
             <div class="name">{{ $review->manager?->name ?? '—' }}</div>
             @if ($review->manager_signed_at)
                 <div class="signed">✓ Signé le {{ $formatDateTime($review->manager_signed_at) }}</div>
@@ -420,6 +426,16 @@ DE L'OBIOU</div>
             @endif
         </div>
     </div>
+
+    @if ($review->coManager)
+        <div style="margin-top: 14px; padding: 12px; border: 1px dashed #CBD5E1; border-radius: 6px; background: #F8FAFC;">
+            <div style="font-weight: 700; color: #115E59; margin-bottom: 2px;">Qui assiste à l'entretien</div>
+            <div>{{ $review->coManager->name }}</div>
+            <div style="font-size: 11px; color: #64748B; margin-top: 4px; font-style: italic;">
+                Présence pour trace — ne signe pas l'entretien.
+            </div>
+        </div>
+    @endif
 
 </div>
 
