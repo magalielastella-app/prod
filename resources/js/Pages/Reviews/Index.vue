@@ -56,8 +56,25 @@ const statusColor = (status) => {
 
 const destroy = (id) => {
     if (!confirm('Supprimer cet entretien ?')) return;
-    useForm({}).delete(route('reviews.destroy', id));
+    useForm({}).post(route('reviews.destroy', id));
 };
+
+// Réprogrammer (changer la date d'un entretien déjà planifié)
+const rescheduleId = ref(null);
+const rescheduleDate = ref('');
+const rescheduleForm = useForm({ scheduled_for: '' });
+const openReschedule = (r) => {
+    rescheduleId.value = r.id;
+    rescheduleDate.value = r.scheduled_for || '';
+};
+const submitReschedule = () => {
+    rescheduleForm.scheduled_for = rescheduleDate.value;
+    rescheduleForm.post(route('reviews.reschedule', rescheduleId.value), {
+        preserveScroll: true,
+        onSuccess: () => { rescheduleId.value = null; },
+    });
+};
+const cancelReschedule = () => { rescheduleId.value = null; };
 </script>
 
 <template>
@@ -201,7 +218,19 @@ const destroy = (id) => {
                                 </td>
                                 <td class="px-4 py-3">{{ r.manager?.name || '—' }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ r.co_manager?.name || '—' }}</td>
-                                <td class="px-4 py-3">{{ r.scheduled_for || '—' }}</td>
+                                <td class="px-4 py-3">
+                                    <div v-if="rescheduleId === r.id" class="flex items-center gap-1">
+                                        <TextInput v-model="rescheduleDate" type="date" class="w-36 text-sm" />
+                                        <button class="text-xs text-brand-primary hover:underline" @click="submitReschedule">OK</button>
+                                        <button class="text-xs text-gray-500 hover:underline" @click="cancelReschedule">✕</button>
+                                    </div>
+                                    <button v-else-if="can.delete && !r.signed"
+                                        class="underline decoration-dotted hover:text-brand-primary"
+                                        @click="openReschedule(r)">
+                                        {{ r.scheduled_for || 'Définir' }}
+                                    </button>
+                                    <span v-else>{{ r.scheduled_for || '—' }}</span>
+                                </td>
                                 <td class="px-4 py-3">
                                     <StatusBadge :label="r.status_label" :cls="statusColor(r.status)" />
                                 </td>

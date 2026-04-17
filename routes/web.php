@@ -16,29 +16,30 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ---------- Entretiens annuels ----------
+    // Toutes les mutations passent par POST : certains proxys (Render notamment)
+    // bloquent ou réécrivent les verbes PUT / DELETE, ce qui se traduit par des
+    // 405 côté navigateur. POST est universellement accepté.
     Route::get('/entretiens', [AnnualReviewController::class, 'index'])->name('reviews.index');
     Route::post('/entretiens', [AnnualReviewController::class, 'store'])->name('reviews.store');
     Route::get('/entretiens/{review}', [AnnualReviewController::class, 'show'])->name('reviews.show');
     Route::get('/entretiens/{review}/imprimer', [AnnualReviewController::class, 'printable'])->name('reviews.print');
     Route::get('/entretiens/{review}/pdf', [AnnualReviewController::class, 'downloadPdf'])->name('reviews.pdf');
-    Route::put('/entretiens/{review}/salarie', [AnnualReviewController::class, 'employeeUpdate'])->name('reviews.employee.update');
-    Route::put('/entretiens/{review}/manager', [AnnualReviewController::class, 'managerUpdate'])->name('reviews.manager.update');
+    Route::post('/entretiens/{review}/salarie', [AnnualReviewController::class, 'employeeUpdate'])->name('reviews.employee.update');
+    Route::post('/entretiens/{review}/manager', [AnnualReviewController::class, 'managerUpdate'])->name('reviews.manager.update');
     Route::post('/entretiens/{review}/signer', [AnnualReviewController::class, 'sign'])->name('reviews.sign');
-    Route::delete('/entretiens/{review}', [AnnualReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('/entretiens/{review}/reprogrammer', [AnnualReviewController::class, 'reschedule'])->name('reviews.reschedule');
+    Route::post('/entretiens/{review}/supprimer', [AnnualReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // ---------- Trames d'entretien (admin) ----------
     Route::get('/trames', [TemplateController::class, 'index'])->name('templates.index');
     Route::get('/trames/{key}', [TemplateController::class, 'edit'])->name('templates.edit');
-    // POST plutôt que PUT : certains intermédiaires (proxy, CDN, proxy Render…)
-    // bloquent ou réécrivent les verbes PUT/PATCH, ce qui se traduit par un 405
-    // côté navigateur. POST est universellement accepté.
     Route::post('/trames/{key}', [TemplateController::class, 'update'])->name('templates.update');
 
     // ---------- Équipe (admin) ----------
     Route::get('/equipe', [TeamController::class, 'index'])->name('team.index');
     Route::post('/equipe', [TeamController::class, 'store'])->name('team.store');
-    Route::put('/equipe/{user}', [TeamController::class, 'update'])->name('team.update');
-    Route::delete('/equipe/{user}', [TeamController::class, 'destroy'])->name('team.destroy');
+    Route::post('/equipe/{user}', [TeamController::class, 'update'])->name('team.update');
+    Route::post('/equipe/{user}/supprimer', [TeamController::class, 'destroy'])->name('team.destroy');
 });
 
 require __DIR__.'/auth.php';

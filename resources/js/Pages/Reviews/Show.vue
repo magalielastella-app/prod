@@ -97,17 +97,17 @@ const setGridCell = (owner, key, rowIndex, value, cellKey = null) => {
     }
 };
 
-// --- Sauvegarde ---
+// --- Sauvegarde (routes en POST — cf. routes/web.php) ---
 const saveEmployee = (submit = false) => {
     employeeForm.submit = submit;
-    employeeForm.put(route('reviews.employee.update', props.review.id), {
+    employeeForm.post(route('reviews.employee.update', props.review.id), {
         preserveScroll: true,
         onFinish: () => { employeeForm.submit = false; },
     });
 };
 const saveManager = (finalize = false) => {
     managerForm.finalize = finalize;
-    managerForm.put(route('reviews.manager.update', props.review.id), {
+    managerForm.post(route('reviews.manager.update', props.review.id), {
         preserveScroll: true,
         onFinish: () => { managerForm.finalize = false; },
     });

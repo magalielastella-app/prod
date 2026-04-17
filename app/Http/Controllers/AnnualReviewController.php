@@ -360,6 +360,20 @@ class AnnualReviewController extends Controller
         return back()->with('success', 'Signature enregistrée');
     }
 
+    /** Modifie la date d'un entretien planifié (admin uniquement). */
+    public function reschedule(Request $request, AnnualReview $review): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $data = $request->validate([
+            'scheduled_for' => ['nullable', 'date'],
+        ]);
+
+        $review->update(['scheduled_for' => $data['scheduled_for'] ?? null]);
+
+        return back()->with('success', 'Date de l\'entretien mise à jour');
+    }
+
     public function destroy(AnnualReview $review): RedirectResponse
     {
         Gate::authorize('delete', $review);

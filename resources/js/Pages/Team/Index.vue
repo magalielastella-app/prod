@@ -53,20 +53,18 @@ const openEdit = (user) => {
 };
 
 const submit = () => {
-    if (editingUser.value) {
-        form.put(route('team.update', editingUser.value.id), {
-            onSuccess: () => { showingModal.value = false; form.reset(); },
-        });
-    } else {
-        form.post(route('team.store'), {
-            onSuccess: () => { showingModal.value = false; form.reset(); },
-        });
-    }
+    // Toutes les mutations en POST (le proxy Render bloque PUT/DELETE).
+    const url = editingUser.value
+        ? route('team.update', editingUser.value.id)
+        : route('team.store');
+    form.post(url, {
+        onSuccess: () => { showingModal.value = false; form.reset(); },
+    });
 };
 
 const destroy = (user) => {
-    if (!confirm(`Supprimer ${user.name} ?`)) return;
-    useForm({}).delete(route('team.destroy', user.id));
+    if (!confirm(`Supprimer ${user.name} ? Les entretiens associés seront également supprimés.`)) return;
+    useForm({}).post(route('team.destroy', user.id));
 };
 
 const roleLabel = (value) => props.roles.find((r) => r.value === value)?.label || value;
