@@ -250,7 +250,7 @@ class AnnualReviewController extends Controller
         $data = $request->validate([
             'header' => ['nullable', 'array'],
             'answers' => ['nullable', 'array'],
-            'submit' => ['nullable', 'boolean'],
+            'do_submit' => ['nullable', 'boolean'],
         ]);
 
         $template = $review->template();
@@ -274,7 +274,7 @@ class AnnualReviewController extends Controller
         // n'affichera que les clés attendues de toute façon)
         $review->employee_answers = $data['answers'] ?? [];
 
-        $submit = (bool) ($data['submit'] ?? false);
+        $submit = (bool) ($data['do_submit'] ?? false);
         if ($submit) {
             $review->status = AnnualReview::STATUS_READY_FOR_MANAGER;
         } elseif ($review->status === AnnualReview::STATUS_SCHEDULED) {

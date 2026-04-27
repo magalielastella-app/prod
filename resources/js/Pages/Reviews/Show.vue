@@ -34,7 +34,7 @@ const managerEditable = computed(
 const employeeForm = useForm({
     header: { ...(props.review.header || {}) },
     answers: { ...(props.review.employee_answers || {}) },
-    submit: false,
+    do_submit: false,
 });
 const managerForm = useForm({
     header: { ...(props.review.header || {}) },
@@ -98,11 +98,11 @@ const setGridCell = (owner, key, rowIndex, value, cellKey = null) => {
 };
 
 // --- Sauvegarde (routes en POST — cf. routes/web.php) ---
-const saveEmployee = (submit = false) => {
-    employeeForm.submit = submit;
+const saveEmployee = (doSubmit = false) => {
+    employeeForm.do_submit = doSubmit;
     employeeForm.post(route('reviews.employee.update', props.review.id), {
         preserveScroll: true,
-        onFinish: () => { employeeForm.submit = false; },
+        onFinish: () => { employeeForm.do_submit = false; },
     });
 };
 const saveManager = (finalize = false) => {
