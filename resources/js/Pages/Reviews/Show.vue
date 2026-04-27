@@ -475,14 +475,14 @@ const inputCls = 'block w-full rounded border-gray-300 text-sm shadow-sm focus:b
                 <div v-if="employeeEditable" class="rounded-lg border border-amber-300 bg-amber-50 p-4">
                     <p class="mb-3 text-sm text-amber-800">
                         Vous êtes en train de préparer votre auto-évaluation. Enregistrez régulièrement en brouillon.
-                        Une fois « Envoyer au manager » cliqué, vous ne pourrez plus modifier vos réponses.
+                        Une fois « Envoyer » cliqué, vous ne pourrez plus modifier vos réponses.
                     </p>
                     <div class="flex flex-wrap justify-end gap-2">
                         <SecondaryButton :disabled="employeeForm.processing" @click="saveEmployee(false)">
                             Enregistrer brouillon
                         </SecondaryButton>
                         <PrimaryButton :disabled="employeeForm.processing" @click="saveEmployee(true)">
-                            Envoyer au manager
+                            Envoyer
                         </PrimaryButton>
                     </div>
                 </div>

@@ -283,7 +283,7 @@ class AnnualReviewController extends Controller
         $review->save();
 
         return back()->with('success', $submit
-            ? 'Auto-évaluation envoyée au manager'
+            ? 'Auto-évaluation envoyée'
             : 'Brouillon enregistré');
     }
 
