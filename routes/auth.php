@@ -53,12 +53,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::post('password', [PasswordController::class, 'update'])->name('password.update');
 
     // Changement de mot de passe obligatoire (première connexion)
     Route::get('changer-mot-de-passe', [ForcePasswordChangeController::class, 'show'])
         ->name('password.force-change');
-    Route::put('changer-mot-de-passe', [ForcePasswordChangeController::class, 'update'])
+    Route::post('changer-mot-de-passe', [ForcePasswordChangeController::class, 'update'])
         ->name('password.force-change.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])

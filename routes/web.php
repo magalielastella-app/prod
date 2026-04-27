@@ -12,8 +12,8 @@ Route::get('/', DashboardController::class)->middleware(['auth'])->name('dashboa
 Route::middleware('auth')->group(function () {
     // Profil (Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ---------- Entretiens annuels ----------
     // Toutes les mutations passent par POST : certains proxys (Render notamment)

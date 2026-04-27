@@ -15,7 +15,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('password.force-change.update'), {
+    form.post(route('password.force-change.update'), {
         onFinish: () => form.reset(),
     });
 };
