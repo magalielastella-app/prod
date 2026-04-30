@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
     review: { type: Object, required: true },
@@ -116,6 +116,39 @@ const sign = () => {
     if (!confirm('Confirmer la signature de cet entretien ?')) return;
     router.post(route('reviews.sign', props.review.id), {}, { preserveScroll: true });
 };
+
+// --- Auto-save toutes les 2 minutes + protection fermeture ---
+const lastAutoSave = ref(null);
+let autoSaveTimer = null;
+
+const autoSave = () => {
+    if (employeeEditable.value && employeeForm.isDirty) {
+        saveEmployee(false);
+        lastAutoSave.value = new Date();
+    }
+    if (managerEditable.value && managerForm.isDirty) {
+        saveManager(false);
+        lastAutoSave.value = new Date();
+    }
+};
+
+const beforeUnloadHandler = (e) => {
+    if ((employeeEditable.value && employeeForm.isDirty)
+        || (managerEditable.value && managerForm.isDirty)) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+};
+
+onMounted(() => {
+    autoSaveTimer = setInterval(autoSave, 120000); // 2 min
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+});
+
+onUnmounted(() => {
+    if (autoSaveTimer) clearInterval(autoSaveTimer);
+    window.removeEventListener('beforeunload', beforeUnloadHandler);
+});
 
 const statusColor = (status) => {
     if (status === 'signed') return 'ok';
@@ -492,8 +525,12 @@ const inputCls = 'block w-full rounded border-gray-300 text-sm shadow-sm focus:b
                 <!-- Boutons salarié -->
                 <div v-if="employeeEditable" class="rounded-lg border border-amber-300 bg-amber-50 p-4">
                     <p class="mb-3 text-sm text-amber-800">
-                        Vous êtes en train de préparer votre auto-évaluation. Enregistrez régulièrement en brouillon.
+                        Vous êtes en train de préparer votre auto-évaluation.
                         Une fois « Envoyer » cliqué, vous ne pourrez plus modifier vos réponses.
+                    </p>
+                    <p class="mb-3 text-xs text-amber-700 italic">
+                        Sauvegarde automatique toutes les 2 minutes.
+                        <span v-if="lastAutoSave"> Dernière sauvegarde : {{ lastAutoSave.toLocaleTimeString('fr-FR') }}</span>
                     </p>
                     <div class="flex flex-wrap justify-end gap-2">
                         <SecondaryButton :disabled="employeeForm.processing" @click="saveEmployee(false)">
@@ -509,6 +546,10 @@ const inputCls = 'block w-full rounded border-gray-300 text-sm shadow-sm focus:b
                 <div v-if="managerEditable" class="rounded-lg border border-indigo-300 bg-indigo-50 p-4">
                     <p class="mb-3 text-sm text-indigo-800">
                         Complétez votre partie. Quand l'entretien est prêt pour signature, cliquez sur « Finaliser ».
+                    </p>
+                    <p class="mb-3 text-xs text-indigo-700 italic">
+                        Sauvegarde automatique toutes les 2 minutes.
+                        <span v-if="lastAutoSave"> Dernière sauvegarde : {{ lastAutoSave.toLocaleTimeString('fr-FR') }}</span>
                     </p>
                     <div class="flex flex-wrap justify-end gap-2">
                         <SecondaryButton :disabled="managerForm.processing" @click="saveManager(false)">
