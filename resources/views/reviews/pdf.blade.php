@@ -8,6 +8,10 @@
         if ($owner === 'manager') return $managerAnswers[$field['key']] ?? null;
         return $employeeAnswers[$field['key']] ?? null;
     };
+
+    $annotation = function (string $key) use ($managerAnswers) {
+        return $managerAnswers['_note_' . $key] ?? null;
+    };
     $fmt = fn ($d) => $d ? \Illuminate\Support\Carbon::parse($d)->format('d/m/Y') : '—';
     $fmtDT = fn ($d) => $d ? \Illuminate\Support\Carbon::parse($d)->format('d/m/Y \à H:i') : null;
 @endphp
@@ -97,6 +101,14 @@
             font-size: 9.5pt;
         }
         .empty { color: #94A3B8; font-style: italic; }
+        .annotation {
+            border-left: 3px solid #E9D5FF;
+            background: #FAF5FF;
+            padding: 4px 8px;
+            margin-top: 4px;
+            font-size: 9pt;
+        }
+        .annotation .ann-label { font-weight: bold; color: #7C3AED; font-size: 8pt; }
 
         /* Échelle 1..10 — rendu via table pour dompdf */
         table.scale { width: 100%; border-collapse: collapse; margin-top: 4px; }
@@ -199,6 +211,8 @@ DE L'OBIOU</span>
             $value = $fieldAnswers($field);
         @endphp
 
+        @php $note = ($field['owner'] ?? '') === 'employee' ? $annotation($field['key'] ?? '') : null; @endphp
+
         @if ($type === 'scale_10')
             <div class="field">
                 <div class="label">{{ $field['question'] }}</div>
@@ -209,12 +223,18 @@ DE L'OBIOU</span>
                         @endfor
                     </tr>
                 </table>
+                @if ($note)
+                    <div class="annotation"><span class="ann-label">Annotation :</span> {{ $note }}</div>
+                @endif
             </div>
 
         @elseif ($type === 'text' || $type === 'textarea' || $type === 'choice')
             <div class="field">
                 <div class="label">{{ $field['question'] }}</div>
                 <div class="value">{{ $value ?: '—' }}</div>
+                @if ($note)
+                    <div class="annotation"><span class="ann-label">Annotation :</span> {{ $note }}</div>
+                @endif
             </div>
 
         @elseif ($type === 'objectives_review')

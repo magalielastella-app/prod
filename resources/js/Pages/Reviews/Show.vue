@@ -467,6 +467,24 @@ const inputCls = 'block w-full rounded border-gray-300 text-sm shadow-sm focus:b
                                     </tbody>
                                 </table>
                             </template>
+
+                            <!-- Annotation du manager sur les réponses du salarié -->
+                            <div v-if="field.owner === 'employee' && isManagerOfReview"
+                                class="mt-2 rounded-lg border-l-4 border-brand-lavender bg-brand-lavender/20 p-3">
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-violet-700">
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                    </svg>
+                                    Annotation
+                                </label>
+                                <textarea rows="2"
+                                    :value="readAnswers('manager')['_note_' + field.key] || ''"
+                                    @input="(e) => { readAnswers('manager')['_note_' + field.key] = e.target.value; }"
+                                    :disabled="!managerEditable"
+                                    placeholder="Ajoutez une note pour préparer l'entretien…"
+                                    :class="['mt-1 text-sm', inputCls]" />
+                            </div>
                         </div>
                     </div>
                 </section>
