@@ -1,58 +1,82 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Cabinet Dentaire — Entretiens annuels
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application web pour planifier, réaliser et signer les entretiens annuels
+professionnels d'un cabinet dentaire.
 
-## About Laravel
+## Profils métiers
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Dentiste** — peut être désigné manager d'une équipe d'assistants.
+- **Assistant dentaire** — remplit son auto-évaluation, signe son entretien.
+- **Assistant administratif** — remplit son auto-évaluation, signe son entretien.
+- **Directrice d'exploitation** — administratrice : voit tout, gère l'équipe.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Rôles applicatifs
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Chaque utilisateur a un poste (l'un des 4 ci-dessus) et un rôle applicatif :
 
-## Learning Laravel
+| Rôle           | Peut faire                                              |
+|----------------|---------------------------------------------------------|
+| `employee`     | Remplit et signe SON entretien uniquement.              |
+| `manager`      | Planifie et conduit les entretiens de ses subordonnés.  |
+| `admin`        | Voit tous les entretiens, gère l'équipe, a tous droits. |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Cycle d'un entretien
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+`scheduled` → `employee_draft` → `ready_for_manager` → `manager_draft`
+→ `completed` → `signed`
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+1. Le manager **planifie** un entretien pour un salarié.
+2. Le **salarié** complète son auto-évaluation, puis l'envoie au manager.
+3. Le **manager** complète son appréciation, fixe les nouveaux objectifs,
+   attribue une note et finalise.
+4. Salarié et manager **signent** électroniquement. Une fois les deux
+   signatures posées, l'entretien devient **immuable**.
 
-## Agentic Development
+## Stack
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- Laravel 13 + Breeze (auth) + Inertia.js + Vue 3 + Tailwind.
+- Base PostgreSQL (ou SQLite en local).
+
+## Démarrage local
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm install && npm run dev
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Comptes de démo (seeder)
 
-## Contributing
+Mot de passe : `password`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- `directrice@cabinet.fr` — Directrice d'exploitation (admin)
+- `dentiste@cabinet.fr` — Dentiste (manager)
+- `amelie.assistante@cabinet.fr` — Assistante dentaire
+- `karim.assistant@cabinet.fr` — Assistant dentaire
+- `sophie.admin@cabinet.fr` — Assistante administrative
 
-## Code of Conduct
+## Déploiement
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Le repo contient un `Dockerfile` multi-étapes et un `render.yaml` prêt à
+l'emploi.
 
-## Security Vulnerabilities
+### Render (recommandé, gratuit pour démarrer)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Poussez le repo sur GitHub.
+2. Sur https://dashboard.render.com → **New** → **Blueprint** → pointez sur
+   ce dépôt.
+3. Render provisionne le service web + Postgres. Renseignez `APP_URL` avec
+   l'URL publique fournie.
+4. Dans le shell Render : `php artisan migrate --seed` pour créer les
+   comptes de démo.
 
-## License
+### Autres plateformes
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Railway / Fly.io** : même principe (Dockerfile fourni), ajoutez une
+  base Postgres managée et les variables `DB_*`.
+- **VPS** : `docker build` + `docker run` derrière Caddy/Traefik pour le
+  TLS Let's Encrypt.

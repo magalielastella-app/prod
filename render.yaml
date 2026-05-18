@@ -1,16 +1,16 @@
-# Blueprint Render pour Smash You Manager
+# Blueprint Render pour l'appli Entretiens Annuels — Cabinet Dentaire
 # Créez un nouveau Blueprint sur https://dashboard.render.com
 # et pointez-le sur ce repo ; Render provisionne automatiquement
 # le service web Docker + la base PostgreSQL.
 services:
   - type: web
-    name: smashyou
+    name: cabinet-entretiens
     runtime: docker
     plan: free
     region: frankfurt
     envVars:
       - key: APP_NAME
-        value: "Smash You"
+        value: "Cabinet Dentaire"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -31,29 +31,29 @@ services:
         value: pgsql
       - key: DB_HOST
         fromDatabase:
-          name: smashyou-db
+          name: cabinet-db
           property: host
       - key: DB_PORT
         fromDatabase:
-          name: smashyou-db
+          name: cabinet-db
           property: port
       - key: DB_DATABASE
         fromDatabase:
-          name: smashyou-db
+          name: cabinet-db
           property: database
       - key: DB_USERNAME
         fromDatabase:
-          name: smashyou-db
+          name: cabinet-db
           property: user
       - key: DB_PASSWORD
         fromDatabase:
-          name: smashyou-db
+          name: cabinet-db
           property: password
 
 databases:
-  - name: smashyou-db
+  - name: cabinet-db
     plan: free
-    databaseName: smashyou
-    user: smashyou
+    databaseName: cabinet
+    user: cabinet
     region: frankfurt
     postgresMajorVersion: "16"

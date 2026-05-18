@@ -3,13 +3,24 @@
 @tailwind utilities;
 
 @layer base {
-    /* Fond général beige crème Smash You */
     body {
         background-color: theme('colors.brand.cream');
+        background-image: theme('backgroundImage.hero-splash');
+        background-attachment: fixed;
         color: theme('colors.brand.dark');
     }
     .dark body {
-        background-color: #1C1512;
+        background-color: #0B1120;
+        background-image: none;
         color: theme('colors.brand.cream');
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-xl bg-white shadow-soft transition-shadow duration-200 dark:bg-gray-800;
+    }
+    .card:hover {
+        @apply shadow-lg;
     }
 }
