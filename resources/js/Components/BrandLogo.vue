@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Logo Cabinet Dentaire de l'Obiou — emoji « presse-papier » sur fond teal.
+ * Logo OSCD Recrutement — emoji sur fond teal.
  *
  * Props :
  *  - variant : "full" (emoji + texte) | "mark" (emoji seul)
@@ -40,9 +40,8 @@ const emojiSizes = {
         <div v-if="variant === 'full'" class="flex items-center border-l border-white/20 px-3 pr-4">
             <div class="font-bold uppercase leading-tight tracking-wide"
                 :class="size === 'sm' ? 'text-[10px]' : (size === 'lg' || size === 'xl') ? 'text-base' : 'text-xs'">
-                Cabinet<br />
-                Dentaire<br />
-                de l'Obiou
+                OSCD<br />
+                Recrutement
             </div>
         </div>
     </div>

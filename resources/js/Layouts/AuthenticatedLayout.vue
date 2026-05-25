@@ -10,7 +10,6 @@ import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
 const page = usePage();
-const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
 </script>
 
 <template>
@@ -25,21 +24,25 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('dashboard')"
                                     class="flex items-center gap-3 transition hover:opacity-90"
-                                    aria-label="Cabinet Dentaire de l'Obiou — Tableau de bord">
+                                    aria-label="OSCD Recrutement — Tableau de bord">
                                     <BrandLogo variant="mark" size="sm" />
                                     <span class="hidden sm:block">
-                                        <span class="block text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-brand-cream">Cabinet Dentaire</span>
-                                        <span class="block text-[10px] uppercase tracking-[0.2em] text-brand-primary">de l'Obiou</span>
+                                        <span class="block text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-brand-cream">OSCD</span>
+                                        <span class="block text-[10px] uppercase tracking-[0.2em] text-brand-primary">Recrutement</span>
                                     </span>
                                 </Link>
                             </div>
 
                             <!-- Liens navigation -->
-                            <div class="hidden space-x-5 sm:-my-px sm:ms-10 sm:flex">
+                            <div class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</NavLink>
-                                <NavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</NavLink>
-                                <NavLink v-if="isAdmin" :href="route('templates.index')" :active="route().current('templates.*')">Trames</NavLink>
-                                <NavLink v-if="isAdmin" :href="route('team.index')" :active="route().current('team.*')">Équipe</NavLink>
+                                <NavLink :href="route('candidates.index')" :active="route().current('candidates.*')">CVth&egrave;que</NavLink>
+                                <NavLink :href="route('analyses.index')" :active="route().current('analyses.*')">Analyses IA</NavLink>
+                                <NavLink :href="route('offers.index')" :active="route().current('offers.*')">Offres</NavLink>
+                                <NavLink :href="route('reports.index')" :active="route().current('reports.*')">Comptes-rendus</NavLink>
+                                <NavLink :href="route('scripts.index')" :active="route().current('scripts.*')">Scripts</NavLink>
+                                <NavLink :href="route('emails.index')" :active="route().current('emails.*')">Emails</NavLink>
+                                <NavLink :href="route('agenda.index')" :active="route().current('agenda.*')">Agenda</NavLink>
                             </div>
                         </div>
 
@@ -81,9 +84,13 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('reviews.index')" :active="route().current('reviews.*')">Entretiens</ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="isAdmin" :href="route('templates.index')" :active="route().current('templates.*')">Trames</ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="isAdmin" :href="route('team.index')" :active="route().current('team.*')">Équipe</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('candidates.index')" :active="route().current('candidates.*')">CVth&egrave;que</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('analyses.index')" :active="route().current('analyses.*')">Analyses IA</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('offers.index')" :active="route().current('offers.*')">Offres</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('reports.index')" :active="route().current('reports.*')">Comptes-rendus</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('scripts.index')" :active="route().current('scripts.*')">Scripts</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('emails.index')" :active="route().current('emails.*')">Emails</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('agenda.index')" :active="route().current('agenda.*')">Agenda</ResponsiveNavLink>
                     </div>
                     <div class="border-t border-brand-tan/50 pb-1 pt-4 dark:border-gray-600">
                         <div class="px-4">
