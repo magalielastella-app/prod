@@ -6,6 +6,7 @@ use App\Http\Controllers\CvAnalysisController;
 use App\Http\Controllers\CvDocumentController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\InterviewEventController;
+use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\RecruitmentCampaignController;
 use App\Http\Controllers\InterviewReportController;
 use App\Http\Controllers\InterviewScriptController;
@@ -21,6 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ---------- Métiers ----------
+    Route::post('/metiers', [JobPositionController::class, 'store'])->name('positions.store');
+    Route::post('/metiers/{jobPosition}/supprimer', [JobPositionController::class, 'destroy'])->name('positions.destroy');
 
     // ---------- Campagnes de recrutement ----------
     Route::get('/campagnes', [RecruitmentCampaignController::class, 'index'])->name('campaigns.index');

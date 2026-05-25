@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Candidate;
+use App\Models\JobPosition;
 use App\Models\RecruitmentCampaign;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,7 +12,7 @@ class CandidateController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Candidate::with('campaign:id,title');
+        $query = Candidate::with(['campaign:id,title', 'jobPosition:id,name']);
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -33,10 +34,12 @@ class CandidateController extends Controller
         $candidates = $query->latest()->paginate(20)->withQueryString();
 
         $campaigns = RecruitmentCampaign::orderBy('title')->get(['id', 'title', 'status']);
+        $jobPositions = JobPosition::orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Candidates/Index', [
             'candidates' => $candidates,
             'campaigns' => $campaigns,
+            'jobPositions' => $jobPositions,
             'statuses' => Candidate::STATUSES,
             'filters' => [
                 'search' => $request->get('search', ''),
@@ -57,6 +60,7 @@ class CandidateController extends Controller
             'source' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'campaign_id' => 'nullable|exists:recruitment_campaigns,id',
+            'job_position_id' => 'nullable|exists:job_positions,id',
             'cv' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
@@ -69,6 +73,7 @@ class CandidateController extends Controller
             'source' => $validated['source'] ?? null,
             'notes' => $validated['notes'] ?? null,
             'campaign_id' => $validated['campaign_id'] ?? null,
+            'job_position_id' => $validated['job_position_id'] ?? null,
             'status' => Candidate::STATUS_A_ANALYSER,
         ]);
 
@@ -92,6 +97,7 @@ class CandidateController extends Controller
     {
         $candidate->load([
             'campaign:id,title',
+            'jobPosition:id,name',
             'cvDocuments',
             'analyses.cvDocument',
             'interviewReports.jobOffer',
@@ -103,9 +109,12 @@ class CandidateController extends Controller
             ->orderBy('title')
             ->get(['id', 'title']);
 
+        $jobPositions = JobPosition::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('Candidates/Show', [
             'candidate' => $candidate,
             'campaigns' => $campaigns,
+            'jobPositions' => $jobPositions,
             'statuses' => Candidate::STATUSES,
         ]);
     }
@@ -122,6 +131,7 @@ class CandidateController extends Controller
             'notes' => 'nullable|string',
             'status' => 'nullable|in:a_analyser,selectionne,rejete',
             'campaign_id' => 'nullable|exists:recruitment_campaigns,id',
+            'job_position_id' => 'nullable|exists:job_positions,id',
         ]);
 
         $candidate->update($validated);

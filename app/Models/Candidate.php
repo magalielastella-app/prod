@@ -28,6 +28,7 @@ class Candidate extends Model
         'source',
         'notes',
         'campaign_id',
+        'job_position_id',
     ];
 
     protected function casts(): array
@@ -45,6 +46,11 @@ class Candidate extends Model
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(RecruitmentCampaign::class, 'campaign_id');
+    }
+
+    public function jobPosition(): BelongsTo
+    {
+        return $this->belongsTo(JobPosition::class);
     }
 
     public function cvDocuments(): HasMany
