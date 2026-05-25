@@ -3,10 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Candidate extends Model
 {
+    public const STATUS_A_ANALYSER = 'a_analyser';
+    public const STATUS_SELECTIONNE = 'selectionne';
+    public const STATUS_REJETE = 'rejete';
+
+    public const STATUSES = [
+        self::STATUS_A_ANALYSER => 'À analyser',
+        self::STATUS_SELECTIONNE => 'Sélectionné',
+        self::STATUS_REJETE => 'Rejeté',
+    ];
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -16,6 +27,7 @@ class Candidate extends Model
         'status',
         'source',
         'notes',
+        'campaign_id',
     ];
 
     protected function casts(): array
@@ -28,6 +40,11 @@ class Candidate extends Model
     public function getFullNameAttribute(): string
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(RecruitmentCampaign::class, 'campaign_id');
     }
 
     public function cvDocuments(): HasMany

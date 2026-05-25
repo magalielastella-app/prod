@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('city')->nullable();
-            $table->enum('status', ['new', 'screening', 'interview', 'offer', 'hired', 'rejected'])->default('new');
+            $table->string('status', 20)->default('a_analyser'); // a_analyser / selectionne / rejete
             $table->string('source')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

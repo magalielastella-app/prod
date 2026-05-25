@@ -36,6 +36,7 @@ const page = usePage();
                             <!-- Liens navigation -->
                             <div class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</NavLink>
+                                <NavLink :href="route('campaigns.index')" :active="route().current('campaigns.*')">Campagnes</NavLink>
                                 <NavLink :href="route('candidates.index')" :active="route().current('candidates.*')">CVth&egrave;que</NavLink>
                                 <NavLink :href="route('analyses.index')" :active="route().current('analyses.*')">Analyses IA</NavLink>
                                 <NavLink :href="route('offers.index')" :active="route().current('offers.*')">Offres</NavLink>
@@ -84,6 +85,7 @@ const page = usePage();
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Tableau de bord</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('campaigns.index')" :active="route().current('campaigns.*')">Campagnes</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('candidates.index')" :active="route().current('candidates.*')">CVth&egrave;que</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('analyses.index')" :active="route().current('analyses.*')">Analyses IA</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('offers.index')" :active="route().current('offers.*')">Offres</ResponsiveNavLink>

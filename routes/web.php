@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\CandidateAssistantController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CvAnalysisController;
 use App\Http\Controllers\CvDocumentController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\InterviewEventController;
+use App\Http\Controllers\RecruitmentCampaignController;
 use App\Http\Controllers\InterviewReportController;
 use App\Http\Controllers\InterviewScriptController;
 use App\Http\Controllers\JobOfferController;
@@ -19,6 +21,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ---------- Campagnes de recrutement ----------
+    Route::get('/campagnes', [RecruitmentCampaignController::class, 'index'])->name('campaigns.index');
+    Route::post('/campagnes', [RecruitmentCampaignController::class, 'store'])->name('campaigns.store');
+    Route::post('/campagnes/{campaign}', [RecruitmentCampaignController::class, 'update'])->name('campaigns.update');
+    Route::post('/campagnes/{campaign}/supprimer', [RecruitmentCampaignController::class, 'destroy'])->name('campaigns.destroy');
+
+    // ---------- Assistant IA candidats ----------
+    Route::post('/candidats/assistant', [CandidateAssistantController::class, 'ask'])->name('candidates.assistant');
 
     // ---------- Candidats + CVthèque ----------
     Route::get('/candidats', [CandidateController::class, 'index'])->name('candidates.index');
